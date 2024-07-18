@@ -1,5 +1,5 @@
 package data
 
 type FailStruct struct {
-	Ignored3 int `genprop:"undefined"`
+	Ignored3 int `prop:"undefined"`
 }

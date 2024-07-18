@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const tagName = "genprop"
+const tagName = "prop"
 
 func TestGenerator_Generate(t *testing.T) {
 	type fields struct {
@@ -33,7 +33,7 @@ func TestGenerator_Generate(t *testing.T) {
 			output: "./test/data/success_output.txt",
 			fields: fields{
 				config: &GeneratorConfig{
-					TagName:    "genprop",
+					TagName:    tagName,
 					Initialism: []string{"api"},
 				},
 			},
@@ -43,7 +43,7 @@ func TestGenerator_Generate(t *testing.T) {
 			input: "./test/data/fail_input.go",
 			fields: fields{
 				config: &GeneratorConfig{
-					TagName:    "genprop",
+					TagName:    tagName,
 					Initialism: []string{"api"},
 				},
 			},
