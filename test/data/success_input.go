@@ -8,31 +8,31 @@ import (
 
 type SuccessStruct struct {
 	ignored1 int
-	ignored2 int `prop:""`
-	ignored3 int `prop:"-"`
+	ignored2 int `property:""`
+	ignored3 int `property:"-"`
 
-	int1 int  `prop:"get,set"`
-	int2 *int `prop:"get,set"`
+	int1 int  `property:"get,set"`
+	int2 *int `property:"get,set"`
 
-	string1 string  `prop:"get,set"`
-	string2 *string `prop:"get,set"`
+	string1 string  `property:"get,set"`
+	string2 *string `property:"get,set"`
 
-	interface1 interface{}  `prop:"get,set"`
-	interface2 *interface{} `prop:"get,set"`
+	interface1 interface{}  `property:"get,set"`
+	interface2 *interface{} `property:"get,set"`
 
-	otherSuccessStruct1 OtherSuccessStruct  `prop:"get,set"`
-	otherSuccessStruct2 *OtherSuccessStruct `prop:"get,set"`
+	otherSuccessStruct1 OtherSuccessStruct  `property:"get,set"`
+	otherSuccessStruct2 *OtherSuccessStruct `property:"get,set"`
 
-	astFile1 ast.File  `prop:"get,set"`
-	astFile2 *ast.File `prop:"get,set"`
+	astFile1 ast.File  `property:"get,set"`
+	astFile2 *ast.File `property:"get,set"`
 
-	api         string `prop:"get"`
-	apiEndpoint string `prop:"get"`
+	api         string `property:"get"`
+	apiEndpoint string `property:"get"`
 }
 
 type OtherSuccessStruct struct {
-	otherInt1 int `prop:"get"`
-	otherInt2 int `prop:"get"`
+	otherInt1 int `property:"get"`
+	otherInt2 int `property:"get"`
 }
 
 type EmptyStruct struct{}
@@ -41,7 +41,7 @@ type String string
 
 func Func() {
 	type IgnoredInnerStruct struct {
-		Int1 int `prop:"get"`
+		Int1 int `property:"get"`
 	}
 
 	fmt.Println("Hello, world")
@@ -52,7 +52,7 @@ const IgnoredConst = 1
 var IgnoredVar = regexp.MustCompile(`^$`)
 
 var IgnoredAnonymousStruct = struct {
-	Int1 int `prop:"get"`
+	Int1 int `property:"get"`
 }{
 	Int1: 1,
 }

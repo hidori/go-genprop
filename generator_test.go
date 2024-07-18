@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const tagName = "prop"
+const tagName = "property"
 
 func TestGenerator_Generate(t *testing.T) {
 	type fields struct {
