@@ -1,13 +1,7 @@
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/hidori/go-astutil v0.0.0-20240718040452-f7cdd5d7406b h1:E5dEVd0wGk6HdUTA61p9q51THOozUiytggezIV1ICZ0=
-github.com/hidori/go-astutil v0.0.0-20240718040452-f7cdd5d7406b/go.mod h1:POZO8Fye8i/liXZfpm641hByWSTNs+dqHc6urqry4fA=
 github.com/hidori/go-astutil v0.0.1 h1:j5iHoESU65UyvJLbK0T9xOj1/JLgzKTRRkoz/rGu79A=
 github.com/hidori/go-astutil v0.0.1/go.mod h1:POZO8Fye8i/liXZfpm641hByWSTNs+dqHc6urqry4fA=
-github.com/hidori/go-typeutil v0.0.0-20240718041105-111abf83c116 h1:VKEzX7v4Y7WqRaiQjEDLAPqLbzkgaQjCPgk2AUjKIa0=
-github.com/hidori/go-typeutil v0.0.0-20240718041105-111abf83c116/go.mod h1:rsFX+QZkRumcUoeaXclGOnCiGJNY+I46OpBq58cf/2U=
-github.com/hidori/go-typeutil v0.0.0-20240718041335-eda1d451f01c h1:SoAWtvyfCrMEECwkfL2r+NVgvwistE88gNrTDflGRjc=
-github.com/hidori/go-typeutil v0.0.0-20240718041335-eda1d451f01c/go.mod h1:rsFX+QZkRumcUoeaXclGOnCiGJNY+I46OpBq58cf/2U=
 github.com/hidori/go-typeutil v0.0.1 h1:1GAuXwOwnYjjiE2oPzHmQgOxEt2irHqvKI5qYY2J/mg=
 github.com/hidori/go-typeutil v0.0.1/go.mod h1:rsFX+QZkRumcUoeaXclGOnCiGJNY+I46OpBq58cf/2U=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
