@@ -1,0 +1,28 @@
+run:
+  timeout: 5m
+  allow-parallel-runners: true
+  tests: false
+
+linters:
+  enable-all: true
+  disable:
+    - depguard
+    - err113
+    - execinquery
+    - exhaustive
+    - exhaustruct
+    - forbidigo
+    - gochecknoglobals
+    - gomnd
+    - revive
+    - stylecheck
+
+issues:
+  exclude-use-default: false
+  exclude-generated: lax
+  exclude-dirs-use-default: false
+  exclude-dirs:
+    - test
+    - example
+  exclude-files:
+    - '(.+)_test\.go'

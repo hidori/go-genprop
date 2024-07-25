@@ -2,14 +2,11 @@ package genprop
 
 import (
 	"bytes"
-	"fmt"
-	"go/ast"
 	"go/format"
 	"go/parser"
 	"go/token"
 	"testing"
 
-	"github.com/hidori/go-genprop/funcutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -54,10 +51,12 @@ func TestGenerator_Generate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fset := token.NewFileSet()
-			f := funcutil.MustGet1(func() (*ast.File, error) {
-				fmt.Println(tt.input)
-				return parser.ParseFile(token.NewFileSet(), tt.input, nil, parser.AllErrors)
-			})
+
+			f, err := parser.ParseFile(token.NewFileSet(), tt.input, nil, parser.AllErrors)
+			if err != nil {
+				t.Errorf("fail to parser.ParseFile() tt.input=%v", tt.input)
+				return
+			}
 
 			got, err := NewGenerator(tt.fields.config).Generate(fset, f)
 			if err != nil && tt.wantErr {
@@ -71,9 +70,12 @@ func TestGenerator_Generate(t *testing.T) {
 
 			_want := bytes.NewBuffer([]byte{})
 			{
-				f := funcutil.MustGet1(func() (*ast.File, error) {
-					return parser.ParseFile(token.NewFileSet(), tt.output, nil, parser.AllErrors)
-				})
+				f, err := parser.ParseFile(token.NewFileSet(), tt.output, nil, parser.AllErrors)
+				if err != nil {
+					t.Errorf("fail to parser.ParseFile() tt.output=%v", tt.input)
+					return
+				}
+
 				format.Node(_want, fset, f.Decls)
 			}
 

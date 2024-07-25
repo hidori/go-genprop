@@ -31,10 +31,10 @@ func NewGenerator(config *GeneratorConfig) *Generator {
 	}
 }
 
-func (g *Generator) Generate(fs *token.FileSet, f *ast.File) ([]ast.Decl, error) {
+func (g *Generator) Generate(fileSet *token.FileSet, file *ast.File) ([]ast.Decl, error) {
 	decls := []ast.Decl{}
 
-	for _, d := range f.Decls {
+	for _, d := range file.Decls {
 		gd := typeutil.AsOrEmpty[*ast.GenDecl](d)
 		if gd == nil {
 			continue
@@ -51,23 +51,23 @@ func (g *Generator) Generate(fs *token.FileSet, f *ast.File) ([]ast.Decl, error)
 	return decls, nil
 }
 
-func (g *Generator) fromGenDecl(gd *ast.GenDecl) ([]ast.Decl, error) {
-	switch gd.Tok {
+func (g *Generator) fromGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
+	switch genDecl.Tok {
 	case token.IMPORT:
-		return []ast.Decl{gd}, nil
+		return []ast.Decl{genDecl}, nil
 
 	case token.TYPE:
-		return g.fromTypeGenDecl(gd)
+		return g.fromTypeGenDecl(genDecl)
 
 	default:
 		return []ast.Decl{}, nil
 	}
 }
 
-func (g *Generator) fromTypeGenDecl(gd *ast.GenDecl) ([]ast.Decl, error) {
+func (g *Generator) fromTypeGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
 	decls := []ast.Decl{}
 
-	for _, s := range gd.Specs {
+	for _, s := range genDecl.Specs {
 		ts := typeutil.AsOrEmpty[*ast.TypeSpec](s)
 		if ts == nil {
 			continue
@@ -84,13 +84,13 @@ func (g *Generator) fromTypeGenDecl(gd *ast.GenDecl) ([]ast.Decl, error) {
 	return decls, nil
 }
 
-func (g *Generator) fromTypeSpec(ts *ast.TypeSpec) ([]ast.Decl, error) {
-	st := typeutil.AsOrEmpty[*ast.StructType](ts.Type)
+func (g *Generator) fromTypeSpec(typeSpec *ast.TypeSpec) ([]ast.Decl, error) {
+	st := typeutil.AsOrEmpty[*ast.StructType](typeSpec.Type)
 	if st == nil {
 		return []ast.Decl{}, nil
 	}
 
-	return g.fromFieldList(ts.Name.Name, st.Fields)
+	return g.fromFieldList(typeSpec.Name.Name, st.Fields)
 }
 
 func (g *Generator) fromFieldList(structName string, fieldList *ast.FieldList) ([]ast.Decl, error) {
@@ -155,7 +155,7 @@ func (g *Generator) newGetterFuncDecl(structName string, field *ast.Field) ast.D
 		},
 	)
 	name := astutil.NewIdent(
-		fmt.Sprintf("Get%s", g.prepareFieldName(field.Names[0].Name)),
+		"Get" + g.prepareFieldName(field.Names[0].Name),
 	)
 	funcType := astutil.NewFuncType(
 		nil,
@@ -190,7 +190,7 @@ func (g *Generator) newSetterFuncDecl(structName string, field *ast.Field) ast.D
 		},
 	)
 	name := astutil.NewIdent(
-		fmt.Sprintf("Set%s", g.prepareFieldName(field.Names[0].Name)),
+		"Set" + g.prepareFieldName(field.Names[0].Name),
 	)
 	funcType := astutil.NewFuncType(
 		nil,

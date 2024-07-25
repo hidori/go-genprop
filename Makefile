@@ -2,6 +2,14 @@
 test:
 	go test ./...
 
+.PHONY: lint
+lint:
+	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint golangci-lint run
+
+.PHONY: lint/fix
+lint/fix:
+	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint golangci-lint run --fix
+
 .PHONY: mod/download
 mod/download:
 	go mod download
