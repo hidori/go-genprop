@@ -35,12 +35,12 @@ func (g *Generator) Generate(fileSet *token.FileSet, file *ast.File) ([]ast.Decl
 	decls := []ast.Decl{}
 
 	for _, d := range file.Decls {
-		gd := typeutil.AsOrEmpty[*ast.GenDecl](d)
-		if gd == nil {
+		genDecl := typeutil.AsOrEmpty[*ast.GenDecl](d)
+		if genDecl == nil {
 			continue
 		}
 
-		_decls, err := g.fromGenDecl(gd)
+		_decls, err := g.fromGenDecl(genDecl)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
@@ -68,12 +68,12 @@ func (g *Generator) fromTypeGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
 	decls := []ast.Decl{}
 
 	for _, s := range genDecl.Specs {
-		ts := typeutil.AsOrEmpty[*ast.TypeSpec](s)
-		if ts == nil {
+		typeSpec := typeutil.AsOrEmpty[*ast.TypeSpec](s)
+		if typeSpec == nil {
 			continue
 		}
 
-		_decls, err := g.fromTypeSpec(ts)
+		_decls, err := g.fromTypeSpec(typeSpec)
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
@@ -85,12 +85,12 @@ func (g *Generator) fromTypeGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
 }
 
 func (g *Generator) fromTypeSpec(typeSpec *ast.TypeSpec) ([]ast.Decl, error) {
-	st := typeutil.AsOrEmpty[*ast.StructType](typeSpec.Type)
-	if st == nil {
+	structType := typeutil.AsOrEmpty[*ast.StructType](typeSpec.Type)
+	if structType == nil {
 		return []ast.Decl{}, nil
 	}
 
-	return g.fromFieldList(typeSpec.Name.Name, st.Fields)
+	return g.fromFieldList(typeSpec.Name.Name, structType.Fields)
 }
 
 func (g *Generator) fromFieldList(structName string, fieldList *ast.FieldList) ([]ast.Decl, error) {
@@ -109,7 +109,7 @@ func (g *Generator) fromFieldList(structName string, fieldList *ast.FieldList) (
 }
 
 func (g *Generator) fromField(structName string, field *ast.Field) ([]ast.Decl, error) {
-	directives := g.fromTag(field.Tag)
+	directives := g.parseTag(field.Tag)
 	if len(directives) == 0 || (len(directives) == 1 && (directives[0] == "" || directives[0] == "-")) {
 		return []ast.Decl{}, nil
 	}
@@ -132,7 +132,7 @@ func (g *Generator) fromField(structName string, field *ast.Field) ([]ast.Decl, 
 	return decls, nil
 }
 
-func (g *Generator) fromTag(tag *ast.BasicLit) []string {
+func (g *Generator) parseTag(tag *ast.BasicLit) []string {
 	if tag == nil {
 		return []string{}
 	}
