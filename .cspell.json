@@ -1,7 +1,10 @@
 {
   "version": "0.2",
   "language": "en",
-  "ignorePaths": [".cspell.json"],
+  "ignorePaths": [
+    ".cspell.json",
+    ".golangci.yml"
+  ],
   "words": [
     "genprop",
     "hidori",
@@ -15,7 +18,10 @@
     {
       "languageId": "go",
       "allowCompoundWords": false,
-      "includeRegExpList": ["CStyleComment", "string"],
+      "includeRegExpList": [
+        "CStyleComment",
+        "string"
+      ],
       "ignoreRegExpList": [
         "import\\s*\\((.|[\r\n])*?\\)",
         "import\\s*.*\".*?\"",

@@ -16,6 +16,7 @@ linters:
     - gomnd
     - revive
     - stylecheck
+    - varnamelen
 
 issues:
   exclude-use-default: false
