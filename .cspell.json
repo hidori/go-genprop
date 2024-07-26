@@ -1,0 +1,28 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "ignorePaths": [".cspell.json"],
+  "words": [
+    "genprop",
+    "hidori",
+    "hiroaki",
+    "interactor",
+    "shibuki",
+    "struct",
+    "usecase"
+  ],
+  "languageSettings": [
+    {
+      "languageId": "go",
+      "allowCompoundWords": false,
+      "includeRegExpList": ["CStyleComment", "string"],
+      "ignoreRegExpList": [
+        "import\\s*\\((.|[\r\n])*?\\)",
+        "import\\s*.*\".*?\"",
+        "//\\s*go:generate.*",
+        "//\\s*nolint:.*",
+        "//\\s*cSpell:.*"
+      ]
+    }
+  ]
+}
