@@ -1,5 +1,9 @@
 package example
 
+type ExampleAliasType = int // ignored
+
+type ExampleDefinedType int // ignored
+
 type ExampleStruct struct {
 	value0 int    // ignored
 	value1 int    `property:"get"`

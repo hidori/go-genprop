@@ -25,6 +25,10 @@ example.go
 ```go
 package example
 
+type ExampleAliasType = int // ignored
+
+type ExampleDefinedType int // ignored
+
 type ExampleStruct struct {
  value0 int    // ignored
  value1 int    `property:"get"`
@@ -35,7 +39,6 @@ type ExampleStruct struct {
  url    string `property:"get"`
  http   string `property:"get"`
 }
-
 ```
 
 run CLI
