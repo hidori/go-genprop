@@ -17,8 +17,11 @@ import (
 )
 
 type GeneratorConfig struct {
-	TagName    string
-	Initialism []string
+	TagName        string
+	Initialism     []string
+	Validate       bool
+	ValidationFunc string
+	ValidationTag  string
 }
 
 type Generator struct {
@@ -32,7 +35,7 @@ func NewGenerator(config *GeneratorConfig) *Generator {
 }
 
 func (g *Generator) Generate(fileSet *token.FileSet, file *ast.File) ([]ast.Decl, error) {
-	decls := []ast.Decl{}
+	var decls []ast.Decl
 
 	for _, d := range file.Decls {
 		genDecl := typeutil.AsOrEmpty[*ast.GenDecl](d)
@@ -65,7 +68,7 @@ func (g *Generator) fromGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
 }
 
 func (g *Generator) fromTypeGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
-	decls := []ast.Decl{}
+	var decls []ast.Decl
 
 	for _, s := range genDecl.Specs {
 		typeSpec := typeutil.AsOrEmpty[*ast.TypeSpec](s)
@@ -94,7 +97,7 @@ func (g *Generator) fromTypeSpec(typeSpec *ast.TypeSpec) ([]ast.Decl, error) {
 }
 
 func (g *Generator) fromFieldList(structName string, fieldList *ast.FieldList) ([]ast.Decl, error) {
-	decls := []ast.Decl{}
+	var decls []ast.Decl
 
 	for _, f := range fieldList.List {
 		_decls, err := g.fromField(structName, f)
@@ -109,20 +112,33 @@ func (g *Generator) fromFieldList(structName string, fieldList *ast.FieldList) (
 }
 
 func (g *Generator) fromField(structName string, field *ast.Field) ([]ast.Decl, error) {
-	directives := g.parseTag(field.Tag)
+	if field.Tag == nil {
+		return nil, nil
+	}
+
+	tagValue, _ := strconv.Unquote(field.Tag.Value)
+	propertyTag := reflect.StructTag(tagValue).Get(g.config.TagName)
+
+	directives := strings.Split(propertyTag, ",")
 	if len(directives) == 0 || (len(directives) == 1 && (directives[0] == "" || directives[0] == "-")) {
 		return []ast.Decl{}, nil
 	}
 
-	decls := []ast.Decl{}
+	var decls []ast.Decl
 
 	for _, directive := range directives {
 		switch directive {
 		case "get":
-			decls = append(decls, g.newGetterFuncDecl(structName, field))
+			decl := g.getterFuncDecl(structName, field)
+			if decl != nil {
+				decls = append(decls, decl)
+			}
 
 		case "set":
-			decls = append(decls, g.newSetterFuncDecl(structName, field))
+			decl := g.setterFuncDecl(structName, field)
+			if decl != nil {
+				decls = append(decls, decl)
+			}
 
 		default:
 			return nil, fmt.Errorf("invalid tag value '%s'", directive)
@@ -132,18 +148,7 @@ func (g *Generator) fromField(structName string, field *ast.Field) ([]ast.Decl, 
 	return decls, nil
 }
 
-func (g *Generator) parseTag(tag *ast.BasicLit) []string {
-	if tag == nil {
-		return []string{}
-	}
-
-	t1, _ := strconv.Unquote(tag.Value)
-	t2 := reflect.StructTag(t1).Get(g.config.TagName)
-
-	return strings.Split(t2, ",")
-}
-
-func (g *Generator) newGetterFuncDecl(structName string, field *ast.Field) ast.Decl {
+func (g *Generator) getterFuncDecl(structName string, field *ast.Field) ast.Decl {
 	recv := astutil.NewFieldList(
 		[]*ast.Field{
 			astutil.NewField(
@@ -160,15 +165,21 @@ func (g *Generator) newGetterFuncDecl(structName string, field *ast.Field) ast.D
 	funcType := astutil.NewFuncType(
 		nil,
 		nil,
-		astutil.NewFieldList([]*ast.Field{
-			astutil.NewField(nil, field.Type),
-		}),
+		astutil.NewFieldList(
+			[]*ast.Field{
+				astutil.NewField(nil, field.Type),
+			},
+		),
 	)
-	body := astutil.NewBlockStmt([]ast.Stmt{
-		astutil.NewReturnStmt([]ast.Expr{
-			astutil.NewSelectorExpr(astutil.NewIdent("t"), astutil.NewIdent(field.Names[0].Name)),
-		}),
-	})
+	body := astutil.NewBlockStmt(
+		[]ast.Stmt{
+			astutil.NewReturnStmt(
+				[]ast.Expr{
+					astutil.NewSelectorExpr(astutil.NewIdent("t"), astutil.NewIdent(field.Names[0].Name)),
+				},
+			),
+		},
+	)
 
 	return &ast.FuncDecl{
 		Recv: recv,
@@ -178,7 +189,22 @@ func (g *Generator) newGetterFuncDecl(structName string, field *ast.Field) ast.D
 	}
 }
 
-func (g *Generator) newSetterFuncDecl(structName string, field *ast.Field) ast.Decl {
+func (g *Generator) setterFuncDecl(structName string, field *ast.Field) ast.Decl {
+	if field.Tag == nil {
+		return nil
+	}
+
+	tagValue, _ := strconv.Unquote(field.Tag.Value)
+	validatonTag := reflect.StructTag(tagValue).Get(g.config.ValidationTag)
+
+	if len(validatonTag) > 0 {
+		return g.setterFuncWithValidationDecl(structName, field, validatonTag)
+	}
+
+	return g.setterFuncNoValidationDecl(structName, field)
+}
+
+func (g *Generator) setterFuncNoValidationDecl(structName string, field *ast.Field) ast.Decl {
 	recv := astutil.NewFieldList(
 		[]*ast.Field{
 			astutil.NewField(
@@ -194,27 +220,126 @@ func (g *Generator) newSetterFuncDecl(structName string, field *ast.Field) ast.D
 	)
 	funcType := astutil.NewFuncType(
 		nil,
-		astutil.NewFieldList([]*ast.Field{
-			astutil.NewField(
-				[]*ast.Ident{
-					ast.NewIdent("v"),
-				},
-				field.Type,
-			),
-		}),
-		nil,
-	)
-	body := astutil.NewBlockStmt([]ast.Stmt{
-		astutil.NewAssignStmt(
-			[]ast.Expr{
-				astutil.NewSelectorExpr(astutil.NewIdent("t"), astutil.NewIdent(field.Names[0].Name)),
-			},
-			token.ASSIGN,
-			[]ast.Expr{
-				astutil.NewIdent("v"),
+		astutil.NewFieldList(
+			[]*ast.Field{
+				astutil.NewField(
+					[]*ast.Ident{
+						ast.NewIdent("v"),
+					},
+					field.Type,
+				),
 			},
 		),
-	})
+		nil,
+	)
+	body := astutil.NewBlockStmt(
+		[]ast.Stmt{
+			astutil.NewAssignStmt(
+				[]ast.Expr{
+					astutil.NewSelectorExpr(astutil.NewIdent("t"), astutil.NewIdent(field.Names[0].Name)),
+				},
+				token.ASSIGN,
+				[]ast.Expr{
+					astutil.NewIdent("v"),
+				},
+			),
+		},
+	)
+
+	return &ast.FuncDecl{
+		Recv: recv,
+		Name: name,
+		Type: funcType,
+		Body: body,
+	}
+}
+
+func (g *Generator) setterFuncWithValidationDecl(structName string, field *ast.Field, tag string) ast.Decl {
+	if field.Tag == nil {
+		return nil
+	}
+
+	t1, _ := strconv.Unquote(field.Tag.Value)
+	t2 := reflect.StructTag(t1).Get(g.config.ValidationTag)
+
+	if len(t2) < 1 {
+		return nil
+	}
+
+	recv := astutil.NewFieldList(
+		[]*ast.Field{
+			astutil.NewField(
+				[]*ast.Ident{
+					astutil.NewIdent("t"),
+				},
+				astutil.NewStarExpr(astutil.NewIdent(structName)),
+			),
+		},
+	)
+	name := astutil.NewIdent(
+		"Set" + g.prepareFieldName(field.Names[0].Name),
+	)
+	funcType := astutil.NewFuncType(
+		nil,
+		astutil.NewFieldList(
+			[]*ast.Field{
+				astutil.NewField(
+					[]*ast.Ident{
+						ast.NewIdent("v"),
+					},
+					field.Type,
+				),
+			},
+		),
+		astutil.NewFieldList(
+			[]*ast.Field{
+				astutil.NewField(nil, astutil.NewIdent("error")),
+			},
+		),
+	)
+	body := astutil.NewBlockStmt(
+		[]ast.Stmt{
+			astutil.NewAssignStmt(
+				[]ast.Expr{
+					astutil.NewIdent("err"),
+				},
+				token.DEFINE,
+				[]ast.Expr{
+					astutil.NewIdent(fmt.Sprintf("%s(v, \"%s\")", g.config.ValidationFunc, tag)),
+				},
+			),
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{
+					Op: token.NEQ,
+					X:  astutil.NewIdent("err"),
+					Y:  astutil.NewIdent("nil"),
+				},
+				Body: astutil.NewBlockStmt(
+					[]ast.Stmt{
+						astutil.NewReturnStmt(
+							[]ast.Expr{
+								ast.NewIdent("err"),
+							},
+						),
+					},
+				),
+			},
+			astutil.NewAssignStmt(
+				[]ast.Expr{
+					astutil.NewSelectorExpr(astutil.NewIdent("t"), astutil.NewIdent(field.Names[0].Name)),
+				},
+				token.ASSIGN,
+				[]ast.Expr{
+					astutil.NewIdent("v"),
+				},
+			),
+			astutil.NewReturnStmt(
+				[]ast.Expr{
+					astutil.NewIdent("nil"),
+				},
+			),
+		},
+	)
 
 	return &ast.FuncDecl{
 		Recv: recv,
