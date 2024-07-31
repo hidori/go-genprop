@@ -32,7 +32,7 @@ func NewGenerator(config *GeneratorConfig) *Generator {
 }
 
 func (g *Generator) Generate(fileSet *token.FileSet, file *ast.File) ([]ast.Decl, error) {
-	decls := []ast.Decl{}
+	var decls []ast.Decl
 
 	for _, d := range file.Decls {
 		genDecl := typeutil.AsOrEmpty[*ast.GenDecl](d)
@@ -65,7 +65,7 @@ func (g *Generator) fromGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
 }
 
 func (g *Generator) fromTypeGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
-	decls := []ast.Decl{}
+	var decls []ast.Decl
 
 	for _, s := range genDecl.Specs {
 		typeSpec := typeutil.AsOrEmpty[*ast.TypeSpec](s)
@@ -94,7 +94,7 @@ func (g *Generator) fromTypeSpec(typeSpec *ast.TypeSpec) ([]ast.Decl, error) {
 }
 
 func (g *Generator) fromFieldList(structName string, fieldList *ast.FieldList) ([]ast.Decl, error) {
-	decls := []ast.Decl{}
+	var decls []ast.Decl
 
 	for _, f := range fieldList.List {
 		_decls, err := g.fromField(structName, f)
@@ -114,19 +114,30 @@ func (g *Generator) fromField(structName string, field *ast.Field) ([]ast.Decl, 
 		return []ast.Decl{}, nil
 	}
 
-	decls := []ast.Decl{}
+	var decls []ast.Decl
+
+	var hasGetter bool
+	var hasSetter bool
 
 	for _, directive := range directives {
 		switch directive {
 		case "get":
-			decls = append(decls, g.newGetterFuncDecl(structName, field))
+			hasGetter = true
 
 		case "set":
-			decls = append(decls, g.newSetterFuncDecl(structName, field))
+			hasSetter = true
 
 		default:
 			return nil, fmt.Errorf("invalid tag value '%s'", directive)
 		}
+	}
+
+	if hasGetter {
+		decls = append(decls, g.getterFuncDecl(structName, field))
+	}
+
+	if hasSetter {
+		decls = append(decls, g.setterFuncDecl(structName, field))
 	}
 
 	return decls, nil
@@ -143,7 +154,7 @@ func (g *Generator) parseTag(tag *ast.BasicLit) []string {
 	return strings.Split(t2, ",")
 }
 
-func (g *Generator) newGetterFuncDecl(structName string, field *ast.Field) ast.Decl {
+func (g *Generator) getterFuncDecl(structName string, field *ast.Field) ast.Decl {
 	recv := astutil.NewFieldList(
 		[]*ast.Field{
 			astutil.NewField(
@@ -178,7 +189,7 @@ func (g *Generator) newGetterFuncDecl(structName string, field *ast.Field) ast.D
 	}
 }
 
-func (g *Generator) newSetterFuncDecl(structName string, field *ast.Field) ast.Decl {
+func (g *Generator) setterFuncDecl(structName string, field *ast.Field) ast.Decl {
 	recv := astutil.NewFieldList(
 		[]*ast.Field{
 			astutil.NewField(
