@@ -1,4 +1,4 @@
-package genprop
+package generator
 
 import (
 	"bytes"
@@ -13,6 +13,8 @@ import (
 const tagName = "property"
 
 func TestGenerator_Generate(t *testing.T) {
+	t.Parallel()
+
 	type fields struct {
 		config *GeneratorConfig
 	}
@@ -26,8 +28,8 @@ func TestGenerator_Generate(t *testing.T) {
 	}{
 		{
 			name:   "success: returns []ast.Decl",
-			input:  "./test/data/success_input.go",
-			output: "./test/data/success_output.txt",
+			input:  "../test/data/success_input.go",
+			output: "../test/data/success_output.txt",
 			fields: fields{
 				config: &GeneratorConfig{
 					TagName:    tagName,
@@ -37,7 +39,7 @@ func TestGenerator_Generate(t *testing.T) {
 		},
 		{
 			name:  "fail: returns []ast.Decl",
-			input: "./test/data/fail_input.go",
+			input: "../test/data/fail_input.go",
 			fields: fields{
 				config: &GeneratorConfig{
 					TagName:    tagName,

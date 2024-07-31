@@ -13,7 +13,7 @@ import (
 	"path"
 	"strings"
 
-	"github.com/hidori/go-genprop"
+	"github.com/hidori/go-genprop/generator"
 	"github.com/pkg/errors"
 	"golang.org/x/tools/imports"
 )
@@ -36,17 +36,17 @@ func Run() error {
 		return nil
 	}
 
-	config := &genprop.GeneratorConfig{
+	config := &generator.GeneratorConfig{
 		TagName:    tagName,
 		Initialism: strings.Split(*initialismFlag, ","),
 	}
 
-	generator := genprop.NewGenerator(config)
-
-	return generate(generator, args[0], os.Stdout)
+	return generate(config, args[0], os.Stdout)
 }
 
-func generate(generator *genprop.Generator, fileName string, writer io.Writer) error {
+func generate(config *generator.GeneratorConfig, fileName string, writer io.Writer) error {
+	generator := generator.NewGenerator(config)
+
 	file, err := parser.ParseFile(token.NewFileSet(), fileName, nil, parser.AllErrors)
 	if err != nil {
 		return errors.Wrap(err, "fail to parser.ParseFile()")

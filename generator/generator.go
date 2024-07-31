@@ -1,4 +1,4 @@
-package genprop
+package generator
 
 import (
 	"fmt"
