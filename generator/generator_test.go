@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const tagName = "property"
@@ -28,8 +29,8 @@ func TestGenerator_Generate(t *testing.T) {
 	}{
 		{
 			name:   "success: returns []ast.Decl",
-			input:  "../test/data/success_input.go",
-			output: "../test/data/success_output.txt",
+			input:  "../testdata/success_input.go",
+			output: "../testdata/success_output.txt",
 			fields: fields{
 				config: &GeneratorConfig{
 					TagName:    tagName,
@@ -39,7 +40,7 @@ func TestGenerator_Generate(t *testing.T) {
 		},
 		{
 			name:  "fail: returns []ast.Decl",
-			input: "../test/data/fail_input.go",
+			input: "../testdata/fail_input.go",
 			fields: fields{
 				config: &GeneratorConfig{
 					TagName:    tagName,
@@ -48,6 +49,19 @@ func TestGenerator_Generate(t *testing.T) {
 			},
 			wantErr:        true,
 			wantErrMessage: "invalid tag value 'undefined'",
+		},
+		{
+			name:   "success: returns []ast.Decl with validation",
+			input:  "../testdata/success2_input.go",
+			output: "../testdata/success2_output.txt",
+			fields: fields{
+				config: &GeneratorConfig{
+					TagName:        tagName,
+					Initialism:     []string{"api"},
+					ValidationFunc: "validateFieldValue",
+					ValidationTag:  "validate",
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -66,9 +80,7 @@ func TestGenerator_Generate(t *testing.T) {
 				return
 			}
 
-			if !assert.NoError(t, err) {
-				return
-			}
+			require.NoError(t, err)
 
 			_want := bytes.NewBuffer([]byte{})
 			{

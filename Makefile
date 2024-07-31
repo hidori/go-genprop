@@ -13,6 +13,7 @@ format:
 .PHONY: run
 run:
 	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example.prop.go
+	go run ./cmd/genprop/main.go -- ./example/example2.go > ./example/example2.prop.go
 
 .PHONY: mod/download
 mod/download:
