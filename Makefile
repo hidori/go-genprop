@@ -6,9 +6,13 @@ test:
 lint:
 	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint golangci-lint run
 
-.PHONY: lint/fix
-lint/fix:
+.PHONY: format
+format:
 	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint golangci-lint run --fix
+
+.PHONY: run
+run:
+	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example.prop.go
 
 .PHONY: mod/download
 mod/download:
