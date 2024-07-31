@@ -6,17 +6,23 @@ run:
 linters:
   enable-all: true
   disable:
+    - cyclop
     - depguard
     - err113
     - execinquery
     - exhaustive
     - exhaustruct
     - forbidigo
+    - funlen
     - gochecknoglobals
     - gomnd
     - revive
     - stylecheck
     - varnamelen
+
+linters-settings:
+  gocyclo:
+    min-complexity: 20
 
 issues:
   exclude-use-default: false
