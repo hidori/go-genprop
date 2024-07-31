@@ -36,21 +36,21 @@ func Run() error {
 		return nil
 	}
 
+	return generate(os.Stdout, args[0])
+}
+
+func generate(writer io.Writer, fileName string) error {
+	file, err := parser.ParseFile(token.NewFileSet(), fileName, nil, parser.AllErrors)
+	if err != nil {
+		return errors.Wrap(err, "fail to parser.ParseFile()")
+	}
+
 	config := &generator.GeneratorConfig{
 		TagName:    tagName,
 		Initialism: strings.Split(*initialismFlag, ","),
 	}
 
-	return generate(config, args[0], os.Stdout)
-}
-
-func generate(config *generator.GeneratorConfig, fileName string, writer io.Writer) error {
 	generator := generator.NewGenerator(config)
-
-	file, err := parser.ParseFile(token.NewFileSet(), fileName, nil, parser.AllErrors)
-	if err != nil {
-		return errors.Wrap(err, "fail to parser.ParseFile()")
-	}
 
 	decls, err := generator.Generate(token.NewFileSet(), file)
 	if err != nil {
