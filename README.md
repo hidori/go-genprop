@@ -13,7 +13,7 @@ go install github.com/hidori/go-genprop/cmd/genprop@latest
 ### Docker
 
 ```bash
-docker run --rm -w $PWD -v $PWD:$PWD hidori/genprop@latest ./example/example.go > ./example/example.prop.go
+docker run --rm -w $PWD -v $PWD:$PWD hidori/genprop@latest example.go > example.prop.go
 ```
 
 ## USAGE
@@ -31,6 +31,8 @@ option(s):
 ```
 
 ## EXAMPLE
+
+### INPUT
 
 example.go
 
@@ -53,11 +55,19 @@ type ExampleStruct struct {
 }
 ```
 
-run CLI
+### RUN
 
 ```bash
 genprop example.go > example.prop.go
 ```
+
+or
+
+```bash
+docker run --rm -w $PWD -v $PWD:$PWD hidori/genprop@latest example.go > example.prop.go
+```
+
+### OUTPUT
 
 example.prop.go
 
@@ -92,6 +102,8 @@ func (t *ExampleStruct) GetHttp() string {
 ```
 
 ## EXAMPLE2
+
+### INPUT
 
 example2.go
 
@@ -144,11 +156,20 @@ func NewExample2Struct(v2 int, v3 int, v4 int) (*Example2Struct, error) {
 }
 ```
 
-run CLI
+### RUN
+
 
 ```bash
 genprop example2.go > example2.prop.go
 ```
+
+or
+
+```bash
+docker run --rm -w $PWD -v $PWD:$PWD hidori/genprop@latest example2.go > example2.prop.go
+```
+
+### OUTPUT
 
 example2.prop.go
 
