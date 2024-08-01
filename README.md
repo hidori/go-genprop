@@ -1,6 +1,6 @@
 # genprop
 
-Generates getter/setter functions of private field.
+Generates getter/setter functions for private fields.
 
 ## INSTALL
 
