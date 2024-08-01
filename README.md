@@ -1,4 +1,4 @@
-# genprop
+# Go: genprop
 
 Generates getter/setter functions for private fields.
 
