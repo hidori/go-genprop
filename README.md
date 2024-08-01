@@ -4,8 +4,16 @@ Generates getter/setter functions for private fields.
 
 ## INSTALL
 
+### CLI
+
 ```bash
 go install github.com/hidori/go-genprop/cmd/genprop@latest
+```
+
+### Docker
+
+```bash
+docker run --rm -w $PWD -v $PWD:$PWD hidori/genprop@latest ./example/example.go > ./example/example.prop.go
 ```
 
 ## USAGE
