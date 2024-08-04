@@ -13,7 +13,7 @@ go install github.com/hidori/go-genprop/cmd/genprop@latest
 ### Docker
 
 ```bash
-docker run --rm -w $PWD -v $PWD:$PWD hidori/genprop@latest example.go > example.prop.go
+docker pull hidori/genprop@latest
 ```
 
 ## USAGE
