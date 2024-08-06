@@ -7,14 +7,14 @@ import (
 )
 
 func main() {
-	v1, err := example.NewExample2Struct(1, 2, 3)
+	v1, err := example.NewStruct(1, 2, 3, 4, 5)
 	if err != nil {
 		fmt.Println(err)
 	} else {
 		fmt.Println(v1)
 	}
 
-	v2, err := example.NewExample2Struct(1, 2, -3)
+	v2, err := example.NewStruct(1, 2, 0, 4, -5)
 	if err != nil {
 		fmt.Println(err)
 	} else {

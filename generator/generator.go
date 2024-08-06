@@ -135,7 +135,13 @@ func (g *Generator) fromField(structName string, field *ast.Field) ([]ast.Decl, 
 			}
 
 		case "set":
-			decl := g.setterFuncDecl(structName, field)
+			decl := g.setterFuncDecl("Set", structName, field)
+			if decl != nil {
+				decls = append(decls, decl)
+			}
+
+		case "set=private":
+			decl := g.setterFuncDecl("set", structName, field)
 			if decl != nil {
 				decls = append(decls, decl)
 			}
@@ -189,7 +195,7 @@ func (g *Generator) getterFuncDecl(structName string, field *ast.Field) ast.Decl
 	}
 }
 
-func (g *Generator) setterFuncDecl(structName string, field *ast.Field) ast.Decl {
+func (g *Generator) setterFuncDecl(verb string, structName string, field *ast.Field) ast.Decl {
 	if field.Tag == nil {
 		return nil
 	}
@@ -198,7 +204,7 @@ func (g *Generator) setterFuncDecl(structName string, field *ast.Field) ast.Decl
 	validatonTag := reflect.StructTag(tagValue).Get(g.config.ValidationTag)
 
 	if len(validatonTag) > 0 {
-		return g.setterFuncWithValidationDecl(structName, field, validatonTag)
+		return g.setterFuncWithValidationDecl(verb, structName, field, validatonTag)
 	}
 
 	return g.setterFuncNoValidationDecl(structName, field)
@@ -254,7 +260,7 @@ func (g *Generator) setterFuncNoValidationDecl(structName string, field *ast.Fie
 	}
 }
 
-func (g *Generator) setterFuncWithValidationDecl(structName string, field *ast.Field, tag string) ast.Decl {
+func (g *Generator) setterFuncWithValidationDecl(verb string, structName string, field *ast.Field, tag string) ast.Decl {
 	if field.Tag == nil {
 		return nil
 	}
@@ -277,7 +283,7 @@ func (g *Generator) setterFuncWithValidationDecl(structName string, field *ast.F
 		},
 	)
 	name := astutil.NewIdent(
-		"Set" + g.prepareFieldName(field.Names[0].Name),
+		verb + g.prepareFieldName(field.Names[0].Name),
 	)
 	funcType := astutil.NewFuncType(
 		nil,
