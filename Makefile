@@ -1,33 +1,26 @@
-IMAGE_NAME = hidori/genprop
+IMAGE_NAME = hidori/genprop:latest
 
 .PHONY: test
 test:
 	go test ./...
+	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example.prop.go
 	go run ./cmd/example/main.go
 
 .PHONY: lint
 lint:
-	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint golangci-lint run
+	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint golangci-lint run .
 
 .PHONY: format
 format:
-	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint golangci-lint run --fix
-
-.PHONY: run
-run:
-	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example.prop.go
+	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint golangci-lint run --fix .
 
 .PHONY: build
-build:
-	docker build -f ./Dockerfile -t ${IMAGE_NAME} .
+build: test lint
+	go build -o ./bin/genprop ./cmd/genprop/main.go
 
-.PHONY: rebuild
-rebuild:
-	docker build -f ./Dockerfile -t ${IMAGE_NAME} --no-cache .
-
-.PHONY: rmi
-rmi:
-	docker rmi -f ${IMAGE_NAME}
+.PHONY: run
+run: build
+	./bin/genprop ./example/example.go > ./example/example.prop.go
 
 .PHONY: mod/download
 mod/download:
@@ -41,8 +34,20 @@ mod/tidy:
 mod/update:
 	go get -u ./...
 
+.PHONY: container/build
+container/build:
+	docker build -f ./Dockerfile -t ${IMAGE_NAME} .
+
+.PHONY: container/rebuild
+container/rebuild:
+	docker build -f ./Dockerfile -t ${IMAGE_NAME} --no-cache .
+
+.PHONY: container/rmi
+container/rmi:
+	docker rmi -f ${IMAGE_NAME}
+
 .PHONY: version/patch
-version/patch: test
+version/patch: test lint
 	git fetch
 	git checkout main
 	git pull

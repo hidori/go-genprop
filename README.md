@@ -22,6 +22,8 @@ docker pull hidori/genprop:latest
 usage: genprop [OPTION]... <FILE>
 
 option(s):
+  -version
+        show version information
   -initialism string
         names to which initialism should be applied (default "id,url,api")
   -validation-func string
