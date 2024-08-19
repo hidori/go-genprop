@@ -1,18 +1,18 @@
 IMAGE_NAME = hidori/genprop:latest
 
+.PHONY: lint
+lint:
+	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint:latest-alpine golangci-lint run
+
+.PHONY: format
+format:
+	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint:latest-alpine golangci-lint run --fix
+
 .PHONY: test
 test:
 	go test ./...
 	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example.prop.go
 	go run ./cmd/example/main.go
-
-.PHONY: lint
-lint:
-	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint golangci-lint run .
-
-.PHONY: format
-format:
-	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint golangci-lint run --fix .
 
 .PHONY: build
 build: test lint
@@ -24,7 +24,7 @@ run: build
 
 .PHONY: mod/download
 mod/download:
-	go mod download
+	go mod downloadmake
 
 .PHONY: mod/tidy
 mod/tidy:

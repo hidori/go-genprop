@@ -16,9 +16,14 @@ linters:
     - funlen
     - gochecknoglobals
     - gomnd
+    - ireturn
+    - lll
+    - mnd
+    - nlreturn
     - revive
     - stylecheck
     - varnamelen
+    - wsl
 
 linters-settings:
   gocyclo:
@@ -29,7 +34,9 @@ issues:
   exclude-generated: lax
   exclude-dirs-use-default: false
   exclude-dirs:
+    - cmd
     - test
     - example
   exclude-files:
     - '(.+)_test\.go'
+    - '(.+)_mock\.go'
