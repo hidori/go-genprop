@@ -15,7 +15,7 @@ test:
 	go run ./cmd/example/main.go
 
 .PHONY: build
-build: test lint
+build:
 	go build -o ./bin/genprop ./cmd/genprop/main.go
 
 .PHONY: run
