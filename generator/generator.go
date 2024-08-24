@@ -311,7 +311,7 @@ func (g *Generator) setterFuncWithValidationDecl(verb string, structName string,
 				},
 				token.DEFINE,
 				[]ast.Expr{
-					astutil.NewIdent(fmt.Sprintf("%s(v, \"%s\")", g.config.ValidationFunc, tag)),
+					astutil.NewIdent(fmt.Sprintf("%s(\"%s\", v, \"%s\")", g.config.ValidationFunc, field.Names[0].Name, tag)),
 				},
 			),
 			&ast.IfStmt{
