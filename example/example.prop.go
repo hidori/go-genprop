@@ -13,25 +13,28 @@ func (t *Struct) GetValue3() int {
 func (t *Struct) SetValue3(v int) {
 	t.value3 = v
 }
-func (t *Struct) GetValue4() int {
-	return t.value4
-}
-func (t *Struct) SetValue4(v int) error {
-	err := validateFieldValue(v, "min=1,max=100")
-	if err != nil {
-		return err
-	}
+func (t *Struct) setValue4(v int) {
 	t.value4 = v
-	return nil
 }
 func (t *Struct) GetValue5() int {
 	return t.value5
 }
-func (t *Struct) setValue5(v int) error {
+func (t *Struct) SetValue5(v int) error {
 	err := validateFieldValue(v, "min=1,max=100")
 	if err != nil {
 		return err
 	}
 	t.value5 = v
+	return nil
+}
+func (t *Struct) GetValue6() int {
+	return t.value6
+}
+func (t *Struct) setValue6(v int) error {
+	err := validateFieldValue(v, "min=1,max=100")
+	if err != nil {
+		return err
+	}
+	t.value6 = v
 	return nil
 }

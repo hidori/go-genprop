@@ -207,10 +207,10 @@ func (g *Generator) setterFuncDecl(verb string, structName string, field *ast.Fi
 		return g.setterFuncWithValidationDecl(verb, structName, field, validatonTag)
 	}
 
-	return g.setterFuncNoValidationDecl(structName, field)
+	return g.setterFuncNoValidationDecl(verb, structName, field)
 }
 
-func (g *Generator) setterFuncNoValidationDecl(structName string, field *ast.Field) ast.Decl {
+func (g *Generator) setterFuncNoValidationDecl(verb string, structName string, field *ast.Field) ast.Decl {
 	recv := astutil.NewFieldList(
 		[]*ast.Field{
 			astutil.NewField(
@@ -222,7 +222,7 @@ func (g *Generator) setterFuncNoValidationDecl(structName string, field *ast.Fie
 		},
 	)
 	name := astutil.NewIdent(
-		"Set" + g.prepareFieldName(field.Names[0].Name),
+		verb + g.prepareFieldName(field.Names[0].Name),
 	)
 	funcType := astutil.NewFuncType(
 		nil,
