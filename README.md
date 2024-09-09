@@ -25,7 +25,7 @@ option(s):
   -version
         show version information
   -initialism string
-        names to which initialism should be applied (default "id,url,api")
+        specify names to which initialism should be applied (default "id,url,api")
   -validation-func string
         specify validation func name (default "validateFieldValue")
   -validation-tag string
