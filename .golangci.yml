@@ -12,6 +12,7 @@ linters:
     - execinquery
     - exhaustive
     - exhaustruct
+    - exportloopref
     - forbidigo
     - funlen
     - gochecknoglobals
