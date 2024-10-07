@@ -10,7 +10,7 @@ require (
 	github.com/hidori/go-typeutil v0.0.1
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/text v0.18.0
+	golang.org/x/text v0.19.0
 	golang.org/x/tools v0.25.0
 )
 
