@@ -10,7 +10,7 @@ WORKDIR /work
 
 RUN make build
 
-FROM alpine:3.20 AS runner
+FROM alpine:3.21 AS runner
 
 COPY --from=builder /work/bin/genprop /usr/local/bin
 
