@@ -8,18 +8,16 @@ import (
 
 func main() {
 	v1, err := example.NewStruct(1, 2, 3, 4, 5, 6)
-	fmt.Printf("%v -> ", v1)
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println("OK")
+		fmt.Printf("%+v\n", v1)
 	}
 
 	v2, err := example.NewStruct(1, 2, 0, 4, -5, 6)
-	fmt.Printf("%v -> ", v2)
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println("OK")
+		fmt.Printf("%+v\n", v2)
 	}
 }
