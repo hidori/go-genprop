@@ -20,19 +20,12 @@ build:
 
 .PHONY: run
 run: build
-	./bin/genprop ./example/example.go > ./example/example.prop.go
+	./bin/genprop -- ./example/example.go > ./example/example.prop.go
+	go run ./cmd/example/main.go
 
-.PHONY: mod/download
-mod/download:
-	go mod downloadmake
-
-.PHONY: mod/tidy
-mod/tidy:
-	go mod tidy
-
-.PHONY: mod/update
-mod/update:
-	go get -u ./...
+.PHONY: container/clean
+container/rmi:
+	docker rmi -f ${IMAGE_NAME}
 
 .PHONY: container/build
 container/build:
@@ -41,10 +34,6 @@ container/build:
 .PHONY: container/rebuild
 container/rebuild:
 	docker build -f ./Dockerfile -t ${IMAGE_NAME} --no-cache .
-
-.PHONY: container/rmi
-container/rmi:
-	docker rmi -f ${IMAGE_NAME}
 
 .PHONY: version/patch
 version/patch: test lint
