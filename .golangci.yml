@@ -9,20 +9,18 @@ linters:
     - cyclop
     - depguard
     - err113
-    - execinquery
     - exhaustive
     - exhaustruct
-    - exportloopref
     - forbidigo
     - funlen
     - gochecknoglobals
-    - gomnd
     - ireturn
     - lll
     - mnd
     - nlreturn
     - revive
     - stylecheck
+    - tenv
     - varnamelen
     - wsl
 
