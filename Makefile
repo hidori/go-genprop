@@ -10,7 +10,7 @@ format:
 
 .PHONY: test
 test:
-	go test ./...
+	go test -cover ./generator
 	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example.prop.go
 	go run ./cmd/example/main.go
 
