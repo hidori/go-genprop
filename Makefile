@@ -13,7 +13,7 @@ format:
 .PHONY: test
 test:
 	go test -cover ./generator
-	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example.prop.go
+	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example_prop.go
 	go run ./cmd/example/main.go
 
 .PHONY: build
@@ -22,7 +22,7 @@ build:
 
 .PHONY: run
 run: build
-	./bin/genprop -- ./example/example.go > ./example/example.prop.go
+	./bin/genprop -- ./example/example.go > ./example/example_prop.go
 	go run ./cmd/example/main.go
 
 .PHONY: container/clean
@@ -39,7 +39,7 @@ container/rebuild:
 
 .PHONY: container/run
 container/run: container/build
-	docker run --rm -it -v ${PWD}:${PWD} -w ${PWD} ${IMAGE_NAME} ./example/example.go > ./example/example.prop.go
+	docker run --rm -it -v ${PWD}:${PWD} -w ${PWD} ${IMAGE_NAME} ./example/example.go > ./example/example_prop.go
 	go run ./cmd/example/main.go
 
 .PHONY: version/patch
