@@ -4,6 +4,7 @@
   "ignorePaths": [".cspell.json", ".golangci.yml"],
   "words": [
     "genprop",
+    "golangci",
     "hidori",
     "hiroaki",
     "interactor",

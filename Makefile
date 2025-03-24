@@ -1,12 +1,14 @@
-IMAGE_NAME = hidori/genprop:latest
+AUTHOR = hidori
+PROJECT = genprop
+IMAGE_NAME = ${AUTHOR}/${PROJECT}:latest
 
 .PHONY: lint
 lint:
-	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint:latest golangci-lint run
+	docker run --rm -v ${PWD}:${PWD} -w ${PWD} golangci/golangci-lint:latest golangci-lint run
 
 .PHONY: format
 format:
-	docker run --rm -v $$PWD:$$PWD -w $$PWD golangci/golangci-lint:latest golangci-lint run --fix
+	docker run --rm -v ${PWD}:${PWD} -w ${PWD} golangci/golangci-lint:latest golangci-lint run --fix
 
 .PHONY: test
 test:
@@ -34,6 +36,11 @@ container/build:
 .PHONY: container/rebuild
 container/rebuild:
 	docker build -f ./Dockerfile -t ${IMAGE_NAME} --no-cache .
+
+.PHONY: container/run
+container/run: container/build
+	docker run --rm -it -v ${PWD}:${PWD} -w ${PWD} ${IMAGE_NAME} ./example/example.go > ./example/example.prop.go
+	go run ./cmd/example/main.go
 
 .PHONY: version/patch
 version/patch: test lint
