@@ -39,3 +39,4 @@ issues:
   exclude-files:
     - '(.+)_test\.go'
     - '(.+)_mock\.go'
+    - '(.+)_prop\.go'
