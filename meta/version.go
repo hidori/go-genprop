@@ -1,4 +1,4 @@
-package pkg
+package meta
 
 import (
 	_ "embed"

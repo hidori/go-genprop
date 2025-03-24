@@ -15,8 +15,8 @@ import (
 	"slices"
 	"strings"
 
-	pkg "github.com/hidori/go-genprop"
 	"github.com/hidori/go-genprop/generator"
+	"github.com/hidori/go-genprop/meta"
 	"github.com/pkg/errors"
 	"golang.org/x/tools/imports"
 )
@@ -37,7 +37,7 @@ func main() {
 	name := path.Base(os.Args[0])
 
 	if slices.Contains(os.Args, "-version") {
-		fmt.Printf("%s %s\n", name, pkg.GetVersion())
+		fmt.Printf("%s %s\n", name, meta.GetVersion())
 		return
 	}
 
