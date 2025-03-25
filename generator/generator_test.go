@@ -29,8 +29,8 @@ func TestGenerator_Generate(t *testing.T) {
 	}{
 		{
 			name:   "success: returns []ast.Decl",
-			input:  "../testdata/success_input.go",
-			output: "../testdata/success_output.txt",
+			input:  "./testdata/success_input.go",
+			output: "./testdata/success_output.txt",
 			fields: fields{
 				config: &GeneratorConfig{
 					TagName:    tagName,
@@ -40,7 +40,7 @@ func TestGenerator_Generate(t *testing.T) {
 		},
 		{
 			name:  "fail: returns []ast.Decl",
-			input: "../testdata/fail_input.go",
+			input: "./testdata/fail_input.go",
 			fields: fields{
 				config: &GeneratorConfig{
 					TagName:    tagName,
@@ -52,8 +52,8 @@ func TestGenerator_Generate(t *testing.T) {
 		},
 		{
 			name:   "success: returns []ast.Decl with validation",
-			input:  "../testdata/success2_input.go",
-			output: "../testdata/success2_output.txt",
+			input:  "./testdata/success2_input.go",
+			output: "./testdata/success2_output.txt",
 			fields: fields{
 				config: &GeneratorConfig{
 					TagName:        tagName,
