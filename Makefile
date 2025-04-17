@@ -4,11 +4,11 @@ IMAGE_NAME = ${AUTHOR}/${PROJECT}:latest
 
 .PHONY: lint
 lint:
-	docker run --rm -v ${PWD}:${PWD} -w ${PWD} golangci/golangci-lint:latest golangci-lint run
+	docker run --rm -v ${PWD}:${PWD} -w ${PWD} golangci/golangci-lint:latest-alpine golangci-lint run
 
 .PHONY: format
 format:
-	docker run --rm -v ${PWD}:${PWD} -w ${PWD} golangci/golangci-lint:latest golangci-lint run --fix
+	docker run --rm -v ${PWD}:${PWD} -w ${PWD} golangci/golangci-lint:latest-alpine golangci-lint run --fix
 
 .PHONY: test
 test:
