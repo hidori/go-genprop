@@ -1,14 +1,14 @@
 AUTHOR = hidori
 PROJECT = genprop
-IMAGE_NAME = ${AUTHOR}/${PROJECT}:latest
+IMAGE_NAME = $(AUTHOR)/$(PROJECT):latest
 
 .PHONY: lint
 lint:
-	docker run --rm -v ${PWD}:${PWD} -w ${PWD} golangci/golangci-lint:latest-alpine golangci-lint run
+	docker run --rm -v $(PWD):$(PWD) -w $(PWD) golangci/golangci-lint:latest-alpine golangci-lint run
 
 .PHONY: format
 format:
-	docker run --rm -v ${PWD}:${PWD} -w ${PWD} golangci/golangci-lint:latest-alpine golangci-lint run --fix
+	docker run --rm -v $(PWD):$(PWD) -w $(PWD) golangci/golangci-lint:latest-alpine golangci-lint run --fix
 
 .PHONY: test
 test:
@@ -25,21 +25,21 @@ run: build
 	./bin/genprop -- ./example/example.go > ./example/example_prop.go
 	go run ./cmd/example/main.go
 
-.PHONY: container/clean
+.PHONY: container/rmi
 container/rmi:
-	docker rmi -f ${IMAGE_NAME}
+	docker rmi -f $(IMAGE_NAME)
 
 .PHONY: container/build
 container/build:
-	docker build -f ./Dockerfile -t ${IMAGE_NAME} .
+	docker build -f ./Dockerfile -t $(IMAGE_NAME) .
 
 .PHONY: container/rebuild
 container/rebuild:
-	docker build -f ./Dockerfile -t ${IMAGE_NAME} --no-cache .
+	docker build -f ./Dockerfile -t $(IMAGE_NAME) --no-cache .
 
 .PHONY: container/run
 container/run: container/build
-	docker run --rm -it -v ${PWD}:${PWD} -w ${PWD} ${IMAGE_NAME} ./example/example.go > ./example/example_prop.go
+	docker run --rm -it -v $(PWD):$(PWD) -w $(PWD) $(IMAGE_NAME) ./example/example.go > ./example/example_prop.go
 	go run ./cmd/example/main.go
 
 .PHONY: version/patch
