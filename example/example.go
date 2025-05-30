@@ -10,7 +10,7 @@ type Struct struct {
 	value2 int `property:"set"`
 	value3 int `property:"get,set"`
 	value4 int `property:"set=private"`
-	value5 int `property:"get,set" validate:"min=1,max=100"`
+	value5 int `property:"get,set"         validate:"min=1,max=100"`
 	value6 int `property:"get,set=private" validate:"min=1,max=100"`
 }
 

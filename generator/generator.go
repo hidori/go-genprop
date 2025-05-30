@@ -54,6 +54,7 @@ func (g *Generator) Generate(fileSet *token.FileSet, file *ast.File) ([]ast.Decl
 	return decls, nil
 }
 
+//nolint:exhaustive
 func (g *Generator) fromGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
 	switch genDecl.Tok {
 	case token.IMPORT:
@@ -111,18 +112,24 @@ func (g *Generator) fromFieldList(structName string, fieldList *ast.FieldList) (
 	return decls, nil
 }
 
+var errInvalidTagValue = errors.New("invalid tag value")
+
 func (g *Generator) fromField(structName string, field *ast.Field) ([]ast.Decl, error) {
 	if field.Tag == nil {
 		return nil, nil
 	}
 
-	tagValue, _ := strconv.Unquote(field.Tag.Value)
-	propertyTag := reflect.StructTag(tagValue).Get(g.config.TagName)
+	tagValue, err := strconv.Unquote(field.Tag.Value)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
-	directives := strings.Split(propertyTag, ",")
-	if len(directives) == 0 || (len(directives) == 1 && (directives[0] == "" || directives[0] == "-")) {
+	propertyTag := reflect.StructTag(tagValue).Get(g.config.TagName)
+	if propertyTag == "" || propertyTag == "-" {
 		return []ast.Decl{}, nil
 	}
+
+	directives := strings.Split(propertyTag, ",")
 
 	var decls []ast.Decl
 
@@ -133,21 +140,18 @@ func (g *Generator) fromField(structName string, field *ast.Field) ([]ast.Decl, 
 			if decl != nil {
 				decls = append(decls, decl)
 			}
-
 		case "set":
 			decl := g.setterFuncDecl("Set", structName, field)
 			if decl != nil {
 				decls = append(decls, decl)
 			}
-
 		case "set=private":
 			decl := g.setterFuncDecl("set", structName, field)
 			if decl != nil {
 				decls = append(decls, decl)
 			}
-
 		default:
-			return nil, fmt.Errorf("invalid tag value '%s'", directive)
+			return nil, errors.Wrapf(errInvalidTagValue, "directive=%s", directive)
 		}
 	}
 
@@ -155,6 +159,10 @@ func (g *Generator) fromField(structName string, field *ast.Field) ([]ast.Decl, 
 }
 
 func (g *Generator) getterFuncDecl(structName string, field *ast.Field) ast.Decl {
+	if len(field.Names) == 0 {
+		return nil
+	}
+
 	recv := astutil.NewFieldList(
 		[]*ast.Field{
 			astutil.NewField(
@@ -196,13 +204,16 @@ func (g *Generator) getterFuncDecl(structName string, field *ast.Field) ast.Decl
 }
 
 func (g *Generator) setterFuncDecl(verb string, structName string, field *ast.Field) ast.Decl {
-	if field.Tag == nil {
+	if field.Tag == nil || len(field.Names) == 0 {
 		return nil
 	}
 
-	tagValue, _ := strconv.Unquote(field.Tag.Value)
-	validatonTag := reflect.StructTag(tagValue).Get(g.config.ValidationTag)
+	tagValue, err := strconv.Unquote(field.Tag.Value)
+	if err != nil {
+		return nil
+	}
 
+	validatonTag := reflect.StructTag(tagValue).Get(g.config.ValidationTag)
 	if len(validatonTag) > 0 {
 		return g.setterFuncWithValidationDecl(verb, structName, field, validatonTag)
 	}
@@ -211,6 +222,10 @@ func (g *Generator) setterFuncDecl(verb string, structName string, field *ast.Fi
 }
 
 func (g *Generator) setterFuncNoValidationDecl(verb string, structName string, field *ast.Field) ast.Decl {
+	if len(field.Names) == 0 {
+		return nil
+	}
+
 	recv := astutil.NewFieldList(
 		[]*ast.Field{
 			astutil.NewField(
@@ -261,13 +276,16 @@ func (g *Generator) setterFuncNoValidationDecl(verb string, structName string, f
 }
 
 func (g *Generator) setterFuncWithValidationDecl(verb string, structName string, field *ast.Field, tag string) ast.Decl {
-	if field.Tag == nil {
+	if field.Tag == nil || len(field.Names) == 0 {
 		return nil
 	}
 
-	t1, _ := strconv.Unquote(field.Tag.Value)
-	t2 := reflect.StructTag(t1).Get(g.config.ValidationTag)
+	t1, err := strconv.Unquote(field.Tag.Value)
+	if err != nil {
+		return nil
+	}
 
+	t2 := reflect.StructTag(t1).Get(g.config.ValidationTag)
 	if len(t2) < 1 {
 		return nil
 	}
@@ -303,6 +321,14 @@ func (g *Generator) setterFuncWithValidationDecl(verb string, structName string,
 			},
 		),
 	)
+	callExpr := &ast.CallExpr{
+		Fun: astutil.NewIdent(g.config.ValidationFunc),
+		Args: []ast.Expr{
+			astutil.NewBasicLit(token.STRING, fmt.Sprintf("\"%s\"", field.Names[0].Name)),
+			astutil.NewIdent("v"),
+			astutil.NewBasicLit(token.STRING, fmt.Sprintf("\"%s\"", tag)),
+		},
+	}
 	body := astutil.NewBlockStmt(
 		[]ast.Stmt{
 			astutil.NewAssignStmt(
@@ -311,7 +337,7 @@ func (g *Generator) setterFuncWithValidationDecl(verb string, structName string,
 				},
 				token.DEFINE,
 				[]ast.Expr{
-					astutil.NewIdent(fmt.Sprintf("%s(\"%s\", v, \"%s\")", g.config.ValidationFunc, field.Names[0].Name, tag)),
+					callExpr,
 				},
 			),
 			&ast.IfStmt{
