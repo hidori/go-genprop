@@ -2,48 +2,28 @@ version: "2"
 run:
   tests: false
   allow-parallel-runners: true
+
 linters:
   default: all
   disable:
-    - cyclop
     - depguard
-    - err113
-    - exhaustive
     - exhaustruct
     - forbidigo
-    - funlen
     - gochecknoglobals
-    - ireturn
-    - lll
-    - mnd
-    - nlreturn
     - revive
-    - varnamelen
-    - wsl
   settings:
+    cyclop:
+      max-complexity: 20
     gocyclo:
       min-complexity: 20
+
   exclusions:
-    generated: lax
     paths:
-      - (.+)_test\.go
-      - (.+)_mock\.go
-      - (.+)_prop\.go
-      - cmd
-      - test
-      - example
+      - ".*example/.*\\.go$"
+
 formatters:
-  enable:
-    - gci
-    - gofmt
-    - gofumpt
-    - goimports
   exclusions:
-    generated: lax
     paths:
-      - (.+)_test\.go
-      - (.+)_mock\.go
-      - (.+)_prop\.go
-      - cmd
-      - test
-      - example
+      - ".*\\_test\\.go$"
+      - ".*\\_mock\\.go$"
+      - ".*\\_prop\\.go$"
