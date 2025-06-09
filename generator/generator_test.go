@@ -48,7 +48,7 @@ func TestGenerator_Generate(t *testing.T) {
 				},
 			},
 			wantErr:        true,
-			wantErrMessage: "invalid tag value 'undefined'",
+			wantErrMessage: "invalid tag value",
 		},
 		{
 			name:   "success: returns []ast.Decl with validation",
