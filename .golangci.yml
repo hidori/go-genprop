@@ -16,6 +16,8 @@ linters:
       max-complexity: 20
     gocyclo:
       min-complexity: 20
+    lll:
+      line-length: 180
 
   exclusions:
     paths:

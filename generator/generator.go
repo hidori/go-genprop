@@ -239,20 +239,7 @@ func (g *Generator) setterFuncNoValidationDecl(verb string, structName string, f
 	name := astutil.NewIdent(
 		verb + g.prepareFieldName(field.Names[0].Name),
 	)
-	funcType := astutil.NewFuncType(
-		nil,
-		astutil.NewFieldList(
-			[]*ast.Field{
-				astutil.NewField(
-					[]*ast.Ident{
-						ast.NewIdent("v"),
-					},
-					field.Type,
-				),
-			},
-		),
-		nil,
-	)
+	funcType := g.buildSetterFuncType(field, false)
 	body := astutil.NewBlockStmt(
 		[]ast.Stmt{
 			astutil.NewAssignStmt(
@@ -290,7 +277,18 @@ func (g *Generator) setterFuncWithValidationDecl(verb string, structName string,
 		return nil
 	}
 
-	recv := astutil.NewFieldList(
+	return &ast.FuncDecl{
+		Recv: g.buildRecvFieldList(structName),
+		Name: astutil.NewIdent(
+			verb + g.prepareFieldName(field.Names[0].Name),
+		),
+		Type: g.buildSetterFuncType(field, true),
+		Body: g.buildValidationBody(field, tag),
+	}
+}
+
+func (g *Generator) buildRecvFieldList(structName string) *ast.FieldList {
+	return astutil.NewFieldList(
 		[]*ast.Field{
 			astutil.NewField(
 				[]*ast.Ident{
@@ -300,27 +298,34 @@ func (g *Generator) setterFuncWithValidationDecl(verb string, structName string,
 			),
 		},
 	)
-	name := astutil.NewIdent(
-		verb + g.prepareFieldName(field.Names[0].Name),
+}
+
+func (g *Generator) buildSetterFuncType(field *ast.Field, withError bool) *ast.FuncType {
+	params := astutil.NewFieldList(
+		[]*ast.Field{
+			astutil.NewField(
+				[]*ast.Ident{
+					ast.NewIdent("v"),
+				},
+				field.Type,
+			),
+		},
 	)
-	funcType := astutil.NewFuncType(
-		nil,
-		astutil.NewFieldList(
-			[]*ast.Field{
-				astutil.NewField(
-					[]*ast.Ident{
-						ast.NewIdent("v"),
-					},
-					field.Type,
-				),
-			},
-		),
-		astutil.NewFieldList(
+
+	var results *ast.FieldList
+
+	if withError {
+		results = astutil.NewFieldList(
 			[]*ast.Field{
 				astutil.NewField(nil, astutil.NewIdent("error")),
 			},
-		),
-	)
+		)
+	}
+
+	return astutil.NewFuncType(nil, params, results)
+}
+
+func (g *Generator) buildValidationBody(field *ast.Field, tag string) *ast.BlockStmt {
 	callExpr := &ast.CallExpr{
 		Fun: astutil.NewIdent(g.config.ValidationFunc),
 		Args: []ast.Expr{
@@ -329,7 +334,8 @@ func (g *Generator) setterFuncWithValidationDecl(verb string, structName string,
 			astutil.NewBasicLit(token.STRING, fmt.Sprintf("\"%s\"", tag)),
 		},
 	}
-	body := astutil.NewBlockStmt(
+
+	return astutil.NewBlockStmt(
 		[]ast.Stmt{
 			astutil.NewAssignStmt(
 				[]ast.Expr{
@@ -372,13 +378,6 @@ func (g *Generator) setterFuncWithValidationDecl(verb string, structName string,
 			),
 		},
 	)
-
-	return &ast.FuncDecl{
-		Recv: recv,
-		Name: name,
-		Type: funcType,
-		Body: body,
-	}
 }
 
 var camelHeadPattern = regexp.MustCompile(`^[a-z]+`)
