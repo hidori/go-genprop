@@ -2,32 +2,46 @@ AUTHOR = hidori
 PROJECT = genprop
 IMAGE_NAME = $(AUTHOR)/$(PROJECT):latest
 
+DOCKER_LINT_CMD = docker run --rm -v $(PWD):$(PWD) -w $(PWD) golangci/golangci-lint:latest-alpine
+
 .PHONY: lint
 lint:
-	docker run --rm -v $(PWD):$(PWD) -w $(PWD) golangci/golangci-lint:latest-alpine golangci-lint run
+	$(DOCKER_LINT_CMD) golangci-lint run
 
 .PHONY: format
 format:
-	docker run --rm -v $(PWD):$(PWD) -w $(PWD) golangci/golangci-lint:latest-alpine golangci-lint run --fix
+	$(DOCKER_LINT_CMD) golangci-lint run --fix
 
 .PHONY: test
 test:
-	go test -v -cover ./generator
+	go test -v -cover -race ./generator
 	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example_prop.go
 	go run ./cmd/example/main.go
 
 .PHONY: build
 build:
-	go build -o ./bin/genprop ./cmd/genprop/main.go
+    mkdir -p ./bin
+    go build -o ./bin/genprop ./cmd/genprop/main.go
 
 .PHONY: run
 run: build
 	./bin/genprop -- ./example/example.go > ./example/example_prop.go
 	go run ./cmd/example/main.go
 
+.PHONY: clean
+clean:
+    rm -rf ./bin/
+    rm -f ./example/example_prop.go
+
 .PHONY: container/rmi
 container/rmi:
 	docker rmi -f $(IMAGE_NAME)
+
+.PHONY: dev
+dev: clean format test build run
+
+.PHONY: ci
+ci: lint test build
 
 .PHONY: container/build
 container/build:
