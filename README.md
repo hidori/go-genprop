@@ -1,8 +1,27 @@
 # Go: genprop
 
-Generates getter/setter functions for private fields.
+[![Go](https://img.shields.io/badge/Go-1.21+-blue.svg)](https://golang.org)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![CI](https://github.com/hidori/go-genprop/workflows/CI/badge.svg?branch=main)](https://github.com/hidori/go-genprop/actions)
 
-## INSTALL
+A Go code generator that automatically creates getter and setter methods for private struct fields based on struct tags. Supports validation, custom visibility settings, and flexible configuration options.
+
+## Table of Contents
+
+- [Features](#features)
+- [Install](#install)
+- [Usage](#usage)
+- [Example](#example)
+
+## Features
+
+- **Property tag support**: `property:"get"`, `property:"set"`, `property:"get,set"`
+- **Visibility control**: `property:"set=private"` for private setters
+- **Validation integration**: Automatic validation using struct tags
+- **Customizable naming**: Support for initialism handling (ID, URL, API)
+- **Error handling**: Built-in error handling for validation failures
+
+## Install
 
 ### CLI
 
@@ -16,9 +35,24 @@ go install github.com/hidori/go-genprop/cmd/genprop@latest
 docker pull hidori/genprop:latest
 ```
 
-## USAGE
+## Usage
 
-```sh
+### Basic Usage
+
+```bash
+# Generate getters and setters
+genprop input.go > output.go
+
+# With custom validation function
+genprop -validation-func "myValidate" input.go > output.go
+
+# With custom initialisms
+genprop -initialism "id,url,api,json" input.go > output.go
+```
+
+### Command Line Options
+
+```text
 Usage:
   genprop [OPTION]... <FILE>
 
@@ -33,9 +67,9 @@ Option(s):
         specify validation tag name (default "validate")
 ```
 
-## EXAMPLE
+## Example
 
-### INPUT
+### Input
 
 example.go
 
@@ -43,53 +77,53 @@ example.go
 package example
 
 import (
- "github.com/go-playground/validator/v10"
- "github.com/pkg/errors"
+    "github.com/go-playground/validator/v10"
+    "github.com/pkg/errors"
 )
 
 type Struct struct {
- value1 int `property:"get"`
- value2 int `property:"set"`
- value3 int `property:"get,set"`
- value4 int `property:"set=private"`
- value5 int `property:"get,set" validate:"min=1,max=100"`
- value6 int `property:"get,set=private" validate:"min=1,max=100"`
+    value1 int `property:"get"`
+    value2 int `property:"set"`
+    value3 int `property:"get,set"`
+    value4 int `property:"set=private"`
+    value5 int `property:"get,set" validate:"min=1,max=100"`
+    value6 int `property:"get,set=private" validate:"min=1,max=100"`
 }
 
 var _validator = validator.New()
 
 func validateFieldValue(name string, v any, tag string) error {
- if err := _validator.Var(v, tag); err != nil {
-  return errors.Wrapf(errors.WithStack(err), "fail to validator.Var() name='%s'", name)
- }
+    if err := _validator.Var(v, tag); err != nil {
+        return errors.Wrapf(errors.WithStack(err), "fail to validator.Var() name='%s'", name)
+    }
 
- return nil
+    return nil
 }
 
 func NewStruct(v1 int, v2 int, v3 int, v4 int, v5 int, v6 int) (*Struct, error) {
- v := &Struct{
-  value1: v1, // has no setter
- }
+    v := &Struct{
+        value1: v1, // has no setter
+    }
 
- v.SetValue2(v2)
- v.SetValue3(v3)
- v.setValue4(v4)
+    v.SetValue2(v2)
+    v.SetValue3(v3)
+    v.setValue4(v4)
 
- err := v.SetValue5(v5)
- if err != nil {
-  return nil, errors.WithStack(err)
- }
+    err := v.SetValue5(v5)
+    if err != nil {
+        return nil, errors.WithStack(err)
+    }
 
- err = v.setValue6(v6)
- if err != nil {
-  return nil, errors.WithStack(err)
- }
+    err = v.setValue6(v6)
+    if err != nil {
+        return nil, errors.WithStack(err)
+    }
 
- return v, nil
+    return v, nil
 }
 ```
 
-### RUN
+### Run
 
 ```bash
 genprop example.go > example_prop.go
@@ -101,7 +135,7 @@ or
 docker run --rm -w ${PWD} -v ${PWD}:${PWD} hidori/genprop:latest example.go > example_prop.go
 ```
 
-### OUTPUT
+### Output
 
 example_prop.go
 
@@ -110,40 +144,40 @@ example_prop.go
 package example
 
 func (t *Struct) GetValue1() int {
- return t.value1
+    return t.value1
 }
 func (t *Struct) SetValue2(v int) {
- t.value2 = v
+    t.value2 = v
 }
 func (t *Struct) GetValue3() int {
- return t.value3
+    return t.value3
 }
 func (t *Struct) SetValue3(v int) {
- t.value3 = v
+    t.value3 = v
 }
 func (t *Struct) setValue4(v int) {
- t.value4 = v
+    t.value4 = v
 }
 func (t *Struct) GetValue5() int {
- return t.value5
+    return t.value5
 }
 func (t *Struct) SetValue5(v int) error {
- err := validateFieldValue(v, "min=1,max=100")
- if err != nil {
-  return err
- }
- t.value5 = v
- return nil
+    err := validateFieldValue(v, "min=1,max=100")
+    if err != nil {
+        return err
+    }
+    t.value5 = v
+    return nil
 }
 func (t *Struct) GetValue6() int {
- return t.value6
+    return t.value6
 }
 func (t *Struct) setValue6(v int) error {
- err := validateFieldValue(v, "min=1,max=100")
- if err != nil {
-  return err
- }
- t.value6 = v
- return nil
+    err := validateFieldValue(v, "min=1,max=100")
+    if err != nil {
+        return err
+    }
+    t.value6 = v
+    return nil
 }
 ```
