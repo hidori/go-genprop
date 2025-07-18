@@ -20,8 +20,8 @@ test:
 
 .PHONY: build
 build:
-    mkdir -p ./bin
-    go build -o ./bin/genprop ./cmd/genprop/main.go
+	mkdir -p ./bin
+	go build -o ./bin/genprop ./cmd/genprop/main.go
 
 .PHONY: run
 run: build
@@ -30,8 +30,8 @@ run: build
 
 .PHONY: clean
 clean:
-    rm -rf ./bin/
-    rm -f ./example/example_prop.go
+	rm -rf ./bin/
+	rm -f ./example/example_prop.go
 
 .PHONY: container/rmi
 container/rmi:

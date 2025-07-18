@@ -19,6 +19,7 @@ func TestGenerator_Generate(t *testing.T) {
 	type fields struct {
 		config *GeneratorConfig
 	}
+
 	tests := []struct {
 		name           string
 		input          string
@@ -64,29 +65,36 @@ func TestGenerator_Generate(t *testing.T) {
 			},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			fset := token.NewFileSet()
 
 			f, err := parser.ParseFile(token.NewFileSet(), tt.input, nil, parser.AllErrors)
 			if err != nil {
 				t.Errorf("fail to parser.ParseFile() tt.input=%v", tt.input)
+
 				return
 			}
 
 			got, err := NewGenerator(tt.fields.config).Generate(fset, f)
 			if err != nil && tt.wantErr {
 				assert.Contains(t, err.Error(), tt.wantErrMessage)
+
 				return
 			}
 
 			require.NoError(t, err)
 
 			_want := bytes.NewBuffer([]byte{})
+
 			{
 				f, err := parser.ParseFile(token.NewFileSet(), tt.output, nil, parser.AllErrors)
 				if err != nil {
 					t.Errorf("fail to parser.ParseFile() tt.output=%v", tt.input)
+
 					return
 				}
 
@@ -94,6 +102,7 @@ func TestGenerator_Generate(t *testing.T) {
 			}
 
 			_got := bytes.NewBuffer([]byte{})
+
 			format.Node(_got, fset, got)
 
 			if !assert.Equal(t, _want.String(), _got.String()) {
