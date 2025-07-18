@@ -38,7 +38,7 @@ container/rmi:
 	docker rmi -f $(IMAGE_NAME)
 
 .PHONY: dev
-dev: clean format test build run
+dev: clean test build run format
 
 .PHONY: ci
 ci: lint test build
