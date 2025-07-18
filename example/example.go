@@ -18,7 +18,7 @@ var _validator = validator.New()
 
 func validateFieldValue(name string, v any, tag string) error {
 	if err := _validator.Var(v, tag); err != nil {
-		return errors.Wrapf(errors.WithStack(err), "fail to validator.Var() name='%s'", name)
+		return errors.Wrapf(err, "fail to validator.Var() name='%s'", name)
 	}
 
 	return nil
