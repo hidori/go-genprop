@@ -6,42 +6,42 @@ DOCKER_LINT_CMD = docker run --rm -v $(PWD):$(PWD) -w $(PWD) golangci/golangci-l
 
 .PHONY: lint
 lint:
-	$(DOCKER_LINT_CMD) golangci-lint run
+	$(DOCKER_LINT_CMD) golangci-lint run ./internal/app/... ./public/...
 
 .PHONY: format
 format:
-	$(DOCKER_LINT_CMD) golangci-lint run --fix
+	$(DOCKER_LINT_CMD) golangci-lint run --fix ./internal/app/... ./public/...
 
 .PHONY: test
 test:
-	go test -v -cover -race ./generator
-	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example_prop.go
-	go run ./cmd/example/main.go
+	go test -v -cover -race ./internal/app/... ./public/...
+	make example/run
 
 .PHONY: build
 build:
 	mkdir -p ./bin
 	go build -o ./bin/genprop ./cmd/genprop/main.go
 
-.PHONY: run
-run: build
-	./bin/genprop -- ./example/example.go > ./example/example_prop.go
-	go run ./cmd/example/main.go
+.PHONY: example/generate
+example/generate:
+	go run ./cmd/genprop/main.go -- ./example/basic/example.go > example/basic/example_generated.go
+	go run ./cmd/genprop/main.go -- ./example/advanced/example1/example.go > example/advanced/example1/example_generated.go
+	go run ./cmd/genprop/main.go -- ./example/advanced/example2/example.go > example/advanced/example2/example_generated.go
+
+.PHONY: example/run
+example/run: example/generate
+	go run ./cmd/example/basic/main.go
+	go run ./cmd/example/advanced/example1/main.go
+	go run ./cmd/example/advanced/example2/main.go
 
 .PHONY: clean
 clean:
 	rm -rf ./bin/
-	rm -f ./example/example_prop.go
+	rm -rf ./tmp/
 
 .PHONY: container/rmi
 container/rmi:
 	docker rmi -f $(IMAGE_NAME)
-
-.PHONY: dev
-dev: clean test build run format
-
-.PHONY: ci
-ci: lint test build
 
 .PHONY: container/build
 container/build:
@@ -61,9 +61,9 @@ version/patch: test lint
 	git fetch
 	git checkout main
 	git pull
-	docker run --rm hidori/semver -i patch `cat ./meta/version.txt` > ./meta/version.txt
-	git add ./meta/version.txt
+	docker run --rm hidori/semver -i patch `cat ./public/meta/version.txt` > ./public/meta/version.txt
+	git add ./public/meta/version.txt
 	git commit -m 'Updated version.txt'
 	git push
-	git tag v`cat ./meta/version.txt`
+	git tag v`cat ./public/meta/version.txt`
 	git push origin --tags

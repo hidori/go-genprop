@@ -2,6 +2,13 @@ version: "2"
 run:
   tests: false
   allow-parallel-runners: true
+  skip-dirs:
+    - tmp
+    - example
+issues:
+  exclude-dirs:
+    - tmp
+    - example
 
 linters:
   default: all
