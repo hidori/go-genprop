@@ -3,6 +3,21 @@
 - コンテキストウィンドウの制限を考慮し、要点を明確にする
 - 明確な指示が無い限り、修正点のコミットを自発的に行う必要はない
 
+## バージョン管理
+
+- プロジェクトのバージョン表記には [Semantic Versioning 2.0.0](https://semver.org/) を使用する
+  - 形式: `MAJOR.MINOR.PATCH` (例: `0.0.21`)
+  - プレリリース版: `MAJOR.MINOR.PATCH-prerelease` (例: `1.0.0-beta`)
+  - ビルドメタデータ: `MAJOR.MINOR.PATCH+build` (例: `1.0.0+build.1`)
+- バージョン情報は `public/meta/version.txt` に記録し、`public/meta/version.go` の `GetVersion()` 関数で "v" プレフィックス付きで提供する
+- `public/meta/version.txt` の更新には Makefile の `version/patch` ターゲットを使用する
+
+  ```bash
+  make version/patch
+  ```
+
+  - パッチバージョンを自動インクリメントし、Git コミット・タグ・プッシュまで実行する
+
 ## コード生成・修正
 
 - 生成前に既存の linter エラーを把握する
@@ -23,4 +38,3 @@
 - テストやデバッグ用の一時ファイルは `tmp/` ディレクトリ配下に作成する
 - `tmp/` ディレクトリは `.gitignore` に含まれており、Git管理対象外
 - `make clean` により `tmp/` ディレクトリは削除される
-

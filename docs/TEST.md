@@ -4,7 +4,7 @@
 
 - レポジトリ直下の `testdata/` 配下のサブディレクトリに配置する
   - 例： 単一パッケージ public/generator/ のテストで使用するテストデータは testdata/public/generator/ 配下に配置する
-  - 例： 複数パッケージ internal/formatter, internal/parser で共有されるテストデータは testdata/internal/ 配下に配置する
+  - 例： 複数パッケージ internal/app/formatter, internal/app/parser で共有されるテストデータは testdata/internal/ 配下に配置する
 
 ## ファイル名
 
