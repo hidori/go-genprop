@@ -54,9 +54,9 @@ version/patch: test lint
 	git fetch
 	git checkout main
 	git pull
-	docker run --rm hidori/semver -i patch `cat ./meta/version.txt` > ./meta/version.txt
-	git add ./meta/version.txt
+	docker run --rm hidori/semver -i patch `cat ./public/meta/version.txt` > ./public/meta/version.txt
+	git add ./public/meta/version.txt
 	git commit -m 'Updated version.txt'
 	git push
-	git tag v`cat ./meta/version.txt`
+	git tag v`cat ./public/meta/version.txt`
 	git push origin --tags
