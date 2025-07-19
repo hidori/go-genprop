@@ -6,16 +6,16 @@ DOCKER_LINT_CMD = docker run --rm -v $(PWD):$(PWD) -w $(PWD) golangci/golangci-l
 
 .PHONY: lint
 lint:
-	$(DOCKER_LINT_CMD) golangci-lint run
+	$(DOCKER_LINT_CMD) golangci-lint run ./internal/app/... ./public/...
 
 .PHONY: format
 format:
-	$(DOCKER_LINT_CMD) golangci-lint run --fix
+	$(DOCKER_LINT_CMD) golangci-lint run --fix ./internal/app/... ./public/...
 
 .PHONY: test
 test:
-	go test -v -cover -race ./generator
 	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example_prop.go
+	go test -v -cover -race ./internal/app/... ./public/...
 	go run ./cmd/example/main.go
 
 .PHONY: build
@@ -24,24 +24,17 @@ build:
 	go build -o ./bin/genprop ./cmd/genprop/main.go
 
 .PHONY: run
-run: build
-	./bin/genprop -- ./example/example.go > ./example/example_prop.go
-	go run ./cmd/example/main.go
+run:
+	go run ./cmd/genprop/main.go -- ./example/example.go
 
 .PHONY: clean
 clean:
 	rm -rf ./bin/
-	rm -f ./example/example_prop.go
+	rm -rf ./tmp/
 
 .PHONY: container/rmi
 container/rmi:
 	docker rmi -f $(IMAGE_NAME)
-
-.PHONY: dev
-dev: clean test build run format
-
-.PHONY: ci
-ci: lint test build
 
 .PHONY: container/build
 container/build:

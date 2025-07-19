@@ -1,29 +1,27 @@
-# Go: genprop
+# 🚀 go-genprop
 
-[![Go](https://img.shields.io/badge/Go-1.21+-blue.svg)](https://golang.org)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8.svg)](https://golang.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/hidori/go-genprop)](https://goreportcard.com/report/github.com/hidori/go-genprop)
 [![CI](https://github.com/hidori/go-genprop/workflows/CI/badge.svg?branch=main)](https://github.com/hidori/go-genprop/actions)
 
-A Go code generator that automatically creates getter and setter methods for private struct fields based on struct tags. Supports validation, custom visibility settings, and flexible configuration options.
+> **A powerful Go code generator that automatically creates getter and setter methods for struct fields using struct tags.**
 
-## Table of Contents
+Simplify your Go development with automatic property generation, validation support, and flexible configuration options.
 
-- [Features](#features)
-- [Install](#install)
-- [Usage](#usage)
-- [Example](#example)
+## ✨ Features
 
-## Features
+- 🏷️ **Property Tag Support**: Use intuitive tags like `property:"get"`, `property:"set"`, `property:"get,set"`
+- 🔒 **Visibility Control**: Create private setters with `property:"set=private"`
+- ✅ **Validation Integration**: Seamless integration with validation frameworks
+- 🎯 **Customizable Naming**: Smart initialism handling (ID, URL, API, JSON, etc.)
+- 🛠️ **Error Handling**: Built-in error handling for validation failures
+- 📦 **Zero Dependencies**: Works with Go standard library
+- ⚡ **High Performance**: Compile-time code generation
 
-- **Property tag support**: `property:"get"`, `property:"set"`, `property:"get,set"`
-- **Visibility control**: `property:"set=private"` for private setters
-- **Validation integration**: Automatic validation using struct tags
-- **Customizable naming**: Support for initialism handling (ID, URL, API)
-- **Error handling**: Built-in error handling for validation failures
+## 📦 Installation
 
-## Install
-
-### CLI
+### CLI Tool
 
 ```bash
 go install github.com/hidori/go-genprop/cmd/genprop@latest
@@ -35,43 +33,146 @@ go install github.com/hidori/go-genprop/cmd/genprop@latest
 docker pull hidori/genprop:latest
 ```
 
-## Usage
-
-### Basic Usage
+### Go Module
 
 ```bash
-# Generate getters and setters
-genprop input.go > output.go
-
-# With custom validation function
-genprop -validation-func "myValidate" input.go > output.go
-
-# With custom initialisms
-genprop -initialism "id,url,api,json" input.go > output.go
+go get github.com/hidori/go-genprop
 ```
 
-### Command Line Options
+## 🚀 Quick Start
+
+### 1. Create your struct with property tags
+
+```go
+package example
+
+type User struct {
+    id       int    `property:"get"`
+    name     string `property:"get,set"`
+    email    string `property:"get,set"`
+    password string `property:"set=private"`
+}
+```
+
+### 2. Generate methods
+
+```bash
+genprop user.go > user_generated.go
+```
+
+### 3. Use the generated methods
+
+```go
+user := &User{}
+user.SetName("John Doe")
+user.SetEmail("john@example.com")
+fmt.Println(user.GetName()) // Output: John Doe
+```
+
+## 📖 Usage
+
+### Command Line Interface
+
+### Basic Commands
+
+```bash
+# Basic usage
+genprop input.go > output.go
+
+# Custom validation function
+genprop -validation-func="myValidate" input.go > output.go
+
+# Custom initialisms
+genprop -initialism="id,url,api,json,uuid" input.go > output.go
+
+# Combine multiple options
+genprop -validation-func="validate" -initialism="id,api" input.go > output.go
+```
+
+#### Available Flags
 
 ```text
-Usage:
-  genprop [OPTION]... <FILE>
+Usage: genprop [flags] <FILE>
 
-Option(s):
-  -version
-        show version information
+A Go code generator that automatically creates getter and setter methods for private struct fields based on struct tags.
+
+Flags:
   -initialism string
         specify names to which initialism should be applied (default "id,url,api")
   -validation-func string
         specify validation func name (default "validateFieldValue")
   -validation-tag string
         specify validation tag name (default "validate")
+  -version
+        show version information
 ```
 
-## Example
+### Docker Usage
 
-### Input
+```bash
+# Basic usage
+docker run --rm -v ${PWD}:${PWD} -w ${PWD} hidori/genprop:latest input.go > output.go
 
-example.go
+# With custom options
+docker run --rm -v ${PWD}:${PWD} -w ${PWD} hidori/genprop:latest \
+  -validation-func="customValidate" input.go > output.go
+```
+
+## 📝 Property Tag Reference
+
+| Tag | Description | Example |
+|-----|-------------|---------|
+| `property:"get"` | Generate getter only | `GetName() string` |
+| `property:"set"` | Generate setter only | `SetName(string)` |
+| `property:"get,set"` | Generate both getter and setter | `GetName()`, `SetName(string)` |
+| `property:"set=private"` | Generate private setter | `setName(string)` |
+
+## 🔍 Advanced Examples
+
+### Example 1: Basic Structure
+
+**Input** (example.go):
+
+```go
+package example
+
+type Person struct {
+    id   int    `property:"get"`
+    name string `property:"get,set"`
+    age  int    `property:"get,set"`
+}
+```
+
+**Generated Output**:
+
+```go
+// Code generated by github.com/hidori/go-genprop/cmd/genprop DO NOT EDIT.
+package example
+
+func (t *Person) GetID() int {
+    return t.id
+}
+
+func (t *Person) GetName() string {
+    return t.name
+}
+
+func (t *Person) SetName(v string) {
+    t.name = v
+}
+
+func (t *Person) GetAge() int {
+    return t.age
+}
+
+func (t *Person) SetAge(v int) {
+    t.age = v
+}
+```
+
+### Example 2: With Validation
+
+**Input** (validated.go):
 
 ```go
 package example
@@ -81,103 +182,177 @@ import (
     "github.com/pkg/errors"
 )
 
-type Struct struct {
-    value1 int `property:"get"`
-    value2 int `property:"set"`
-    value3 int `property:"get,set"`
-    value4 int `property:"set=private"`
-    value5 int `property:"get,set"         validate:"min=1,max=100"`
-    value6 int `property:"get,set=private" validate:"min=1,max=100"`
+type User struct {
+    email    string `property:"get,set" validate:"email"`
+    password string `property:"set=private" validate:"min=8"`
+    score    int    `property:"get,set" validate:"min=0,max=100"`
 }
 
 var _validator = validator.New()
 
 func validateFieldValue(name string, v any, tag string) error {
     if err := _validator.Var(v, tag); err != nil {
-        return errors.Wrapf(err, "fail to validator.Var() name='%s'", name)
+        return errors.Wrapf(err, "validation failed for field '%s'", name)
     }
-
     return nil
 }
-
-func NewStruct(v1 int, v2 int, v3 int, v4 int, v5 int, v6 int) (*Struct, error) {
-    v := &Struct{
-        value1: v1, // has no setter
-    }
-
-    v.SetValue2(v2)
-    v.SetValue3(v3)
-    v.setValue4(v4)
-
-    err := v.SetValue5(v5)
-    if err != nil {
-        return nil, errors.WithStack(err)
-    }
-
-    err = v.setValue6(v6)
-    if err != nil {
-        return nil, errors.WithStack(err)
-    }
-
-    return v, nil
-}
 ```
 
-### Run
-
-```bash
-genprop example.go > example_prop.go
-```
-
-or
-
-```bash
-docker run --rm -w ${PWD} -v ${PWD}:${PWD} hidori/genprop:latest example.go > example_prop.go
-```
-
-### Output
-
-example_prop.go
+**Generated Output**:
 
 ```go
 // Code generated by github.com/hidori/go-genprop/cmd/genprop DO NOT EDIT.
 package example
 
-func (t *Struct) GetValue1() int {
-    return t.value1
+func (t *User) GetEmail() string {
+    return t.email
 }
-func (t *Struct) SetValue2(v int) {
-    t.value2 = v
-}
-func (t *Struct) GetValue3() int {
-    return t.value3
-}
-func (t *Struct) SetValue3(v int) {
-    t.value3 = v
-}
-func (t *Struct) setValue4(v int) {
-    t.value4 = v
-}
-func (t *Struct) GetValue5() int {
-    return t.value5
-}
-func (t *Struct) SetValue5(v int) error {
-    err := validateFieldValue("value5", v, "min=1,max=100")
+
+func (t *User) SetEmail(v string) error {
+    err := validateFieldValue("email", v, "email")
     if err != nil {
         return err
     }
-    t.value5 = v
+    t.email = v
     return nil
 }
-func (t *Struct) GetValue6() int {
-    return t.value6
-}
-func (t *Struct) setValue6(v int) error {
-    err := validateFieldValue("value6", v, "min=1,max=100")
+
+func (t *User) setPassword(v string) error {
+    err := validateFieldValue("password", v, "min=8")
     if err != nil {
         return err
     }
-    t.value6 = v
+    t.password = v
+    return nil
+}
+
+func (t *User) GetScore() int {
+    return t.score
+}
+
+func (t *User) SetScore(v int) error {
+    err := validateFieldValue("score", v, "min=0,max=100")
+    if err != nil {
+        return err
+    }
+    t.score = v
     return nil
 }
 ```
+
+## 🛠️ Integration Examples
+
+### With go:generate
+
+Add this comment to your Go files:
+
+```go
+//go:generate genprop $GOFILE > ${GOFILE%.*}_generated.go
+```
+
+Then run:
+
+```bash
+go generate ./...
+```
+
+### With Makefile
+
+```makefile
+.PHONY: generate
+generate:
+    find . -name "*.go" -not -name "*_generated.go" | xargs -I {} genprop {} > {}_generated.go
+
+.PHONY: clean
+clean:
+    find . -name "*_generated.go" -delete
+```
+
+### With Build Scripts
+
+```bash
+#!/bin/bash
+# generate.sh
+
+for file in $(find . -name "*.go" -not -name "*_generated.go"); do
+    output="${file%.*}_generated.go"
+    genprop "$file" > "$output"
+    echo "Generated: $output"
+done
+```
+
+## 🚨 Common Issues & Solutions
+
+### Issue: "validateFieldValue function not found"
+
+**Solution**: Make sure your validation function is defined in the same package:
+
+```go
+func validateFieldValue(name string, v any, tag string) error {
+    // Your validation logic here
+    return nil
+}
+```
+
+### Issue: "Generated methods conflict with existing methods"
+
+**Solution**: Rename your existing methods or exclude the field from code generation:
+
+```go
+// Option 1: Rename existing method
+type User struct {
+    name string `property:"get,set"`
+}
+func (u *User) GetUserName() string { /* existing method with different name */ }
+
+// Option 2: Exclude field from generation
+type User struct {
+    name string `property:"-"` // Skip this field
+}
+func (u *User) GetName() string { /* your existing method */ }
+
+// Option 3: Use only setter generation
+type User struct {
+    name string `property:"set"` // Only generate setter
+}
+func (u *User) GetName() string { /* your existing getter */ }
+```
+
+### Issue: "Initialism not working correctly"
+
+**Solution**: Use the `-initialism` flag with comma-separated values:
+
+```bash
+genprop -initialism="id,url,api,json,uuid,sql" input.go
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/hidori/go-genprop.git
+cd go-genprop
+
+# Install dependencies
+go mod download
+
+# Run tests
+make test
+
+# Build the project
+make build
+```
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Inspired by the need for cleaner Go code
+- Built with the power of Go's ast package
+- Community feedback and contributions

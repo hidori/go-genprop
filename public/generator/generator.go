@@ -16,24 +16,27 @@ import (
 	"golang.org/x/text/language"
 )
 
+// GeneratorConfig holds configuration for the code generator.
 type GeneratorConfig struct {
 	TagName        string
 	Initialism     []string
-	Validate       bool
 	ValidationFunc string
 	ValidationTag  string
 }
 
+// Generator generates getter and setter methods for struct fields.
 type Generator struct {
 	config *GeneratorConfig
 }
 
+// NewGenerator creates a new Generator with the given configuration.
 func NewGenerator(config *GeneratorConfig) *Generator {
 	return &Generator{
 		config: config,
 	}
 }
 
+// Generate generates getter and setter methods for struct fields based on tags.
 func (g *Generator) Generate(fileSet *token.FileSet, file *ast.File) ([]ast.Decl, error) {
 	var decls []ast.Decl
 
@@ -54,15 +57,13 @@ func (g *Generator) Generate(fileSet *token.FileSet, file *ast.File) ([]ast.Decl
 	return decls, nil
 }
 
-//nolint:exhaustive
+//nolint:exhaustive // Only IMPORT/TYPE tokens are processed, others handled by default case
 func (g *Generator) fromGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
 	switch genDecl.Tok {
 	case token.IMPORT:
 		return []ast.Decl{genDecl}, nil
-
 	case token.TYPE:
 		return g.fromTypeGenDecl(genDecl)
-
 	default:
 		return []ast.Decl{}, nil
 	}

@@ -1,0 +1,6 @@
+package data
+
+type PrivateSetterStruct struct {
+	name     string `property:"get,set=private"`
+	password string `property:"set=private"`
+}
