@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -20,7 +19,7 @@ func TestParseFile(t *testing.T) {
 	}{
 		{
 			name:        "valid go file",
-			fileName:    filepath.Join("..", "..", "..", "testdata", "internal", "valid_syntax_input.go.txt"),
+			fileName:    "../../../testdata/internal/app/valid_syntax_input.go.txt",
 			wantError:   false,
 			wantPackage: "test",
 		},
@@ -31,8 +30,15 @@ func TestParseFile(t *testing.T) {
 			errorContains: "no such file or directory",
 		},
 		{
+			name:          "success: calls internal parser",
+			fileName:      "../../../testdata/internal/app/valid_syntax_input.go.txt",
+			wantError:     false,
+			wantPackage:   "test",
+			errorContains: "",
+		},
+		{
 			name:          "invalid syntax test data",
-			fileName:      filepath.Join("..", "..", "..", "testdata", "internal", "invalid_syntax_input.go.txt"),
+			fileName:      "../../../testdata/internal/app/invalid_syntax_input.go.txt",
 			wantError:     true,
 			errorContains: "",
 		},
