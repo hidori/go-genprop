@@ -9,6 +9,41 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestRun(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		args    []string
+		wantErr bool
+	}{
+		{
+			name:    "success: run with valid file argument",
+			args:    []string{"genprop", "../../testdata/internal/app/valid_syntax_input.go.txt"},
+			wantErr: false,
+		},
+		{
+			name:    "failure: run with non-existent file",
+			args:    []string{"genprop", "non_existent_file.go"},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := Run(tt.args[1:]) // Skip program name
+
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
 func TestParseFile(t *testing.T) {
 	t.Parallel()
 
@@ -181,41 +216,6 @@ func TestGenerate(t *testing.T) {
 
 			for _, want := range tt.wantContains {
 				assert.Contains(t, output, want)
-			}
-		})
-	}
-}
-
-func TestRun(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name    string
-		args    []string
-		wantErr bool
-	}{
-		{
-			name:    "success: run with valid file argument",
-			args:    []string{"genprop", "../../testdata/internal/app/valid_syntax_input.go.txt"},
-			wantErr: false,
-		},
-		{
-			name:    "failure: run with non-existent file",
-			args:    []string{"genprop", "non_existent_file.go"},
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			err := RunWithArgs(tt.args[1:]) // Skip program name
-
-			if tt.wantErr {
-				require.Error(t, err)
-			} else {
-				require.NoError(t, err)
 			}
 		})
 	}

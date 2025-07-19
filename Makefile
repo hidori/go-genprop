@@ -14,18 +14,25 @@ format:
 
 .PHONY: test
 test:
-	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example_prop.go
 	go test -v -cover -race ./internal/app/... ./public/...
-	go run ./cmd/example/main.go
+	make example/run
 
 .PHONY: build
 build:
 	mkdir -p ./bin
 	go build -o ./bin/genprop ./cmd/genprop/main.go
 
-.PHONY: run
-run:
-	go run ./cmd/genprop/main.go -- ./example/example.go
+.PHONY: example/generate
+example/generate:
+	go run ./cmd/genprop/main.go -- ./example/basic/example.go > example/basic/example_generated.go
+	go run ./cmd/genprop/main.go -- ./example/advanced/example1/example.go > example/advanced/example1/example_generated.go
+	go run ./cmd/genprop/main.go -- ./example/advanced/example2/example.go > example/advanced/example2/example_generated.go
+
+.PHONY: example/run
+example/run: example/generate
+	go run ./cmd/example/basic/main.go
+	go run ./cmd/example/advanced/example1/main.go
+	go run ./cmd/example/advanced/example2/main.go
 
 .PHONY: clean
 clean:

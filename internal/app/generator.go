@@ -21,12 +21,7 @@ const (
 )
 
 // Run executes the CLI application with command line arguments.
-func Run() error {
-	return RunWithArgs(os.Args[1:])
-}
-
-// RunWithArgs executes the CLI application with provided arguments.
-func RunWithArgs(args []string) error {
+func Run(args []string) error {
 	flagSet := flag.NewFlagSet("genprop", flag.ExitOnError)
 	initialismFlagFS := flagSet.String("initialism", "id,url,api", "specify names to which initialism should be applied")
 	validationFuncFlagFS := flagSet.String("validation-func", "validateFieldValue", "specify validation func name")
