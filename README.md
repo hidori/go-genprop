@@ -3,7 +3,7 @@
 [![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8.svg)](https://golang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hidori/go-genprop)](https://goreportcard.com/report/github.com/hidori/go-genprop)
-[![CI](https://github.com/hidori/go-genprop/workflows/CI/badge.svg?branch=main)](https://github.com/hidori/go-genprop/actions)
+[![CI](https://github.com/hidori/go-genprop/actions/workflows/check_and_test.yml/badge.svg?branch=main)](https://github.com/hidori/go-genprop/actions)
 
 > **A powerful Go code generator that automatically creates getter and setter methods for struct fields using struct tags.**
 
