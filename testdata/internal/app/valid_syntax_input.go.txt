@@ -1,0 +1,5 @@
+package test
+
+type TestStruct struct {
+	field string `property:"get,set"`
+}

@@ -6,42 +6,42 @@ DOCKER_LINT_CMD = docker run --rm -v $(PWD):$(PWD) -w $(PWD) golangci/golangci-l
 
 .PHONY: lint
 lint:
-	$(DOCKER_LINT_CMD) golangci-lint run
+	$(DOCKER_LINT_CMD) golangci-lint config verify
+	$(DOCKER_LINT_CMD) golangci-lint run ./internal/... ./public/...
 
 .PHONY: format
 format:
-	$(DOCKER_LINT_CMD) golangci-lint run --fix
+	find ./internal ./public -name "*.go" -exec go tool goimports -w {} +
+	$(DOCKER_LINT_CMD) golangci-lint config verify
+	$(DOCKER_LINT_CMD) golangci-lint run --fix ./internal/... ./public/...
 
 .PHONY: test
 test:
-	go test -v -cover -race ./generator
-	go run ./cmd/genprop/main.go -- ./example/example.go > ./example/example_prop.go
-	go run ./cmd/example/main.go
+	go test -v -cover -race ./internal/... ./public/...
 
 .PHONY: build
 build:
 	mkdir -p ./bin
 	go build -o ./bin/genprop ./cmd/genprop/main.go
 
-.PHONY: run
-run: build
-	./bin/genprop -- ./example/example.go > ./example/example_prop.go
-	go run ./cmd/example/main.go
+.PHONY: example/generate
+example/generate:
+	go run ./cmd/genprop/main.go -- ./example/basic/user.go > example/basic/user_prop.go
+	go run ./cmd/genprop/main.go -- ./example/advanced/user.go > example/advanced/user_prop.go
+
+.PHONY: example/run
+example/run: example/generate
+	go run ./cmd/example/basic/main.go
+	go run ./cmd/example/advanced/main.go
 
 .PHONY: clean
 clean:
 	rm -rf ./bin/
-	rm -f ./example/example_prop.go
+	rm -rf ./tmp/
 
 .PHONY: container/rmi
 container/rmi:
 	docker rmi -f $(IMAGE_NAME)
-
-.PHONY: dev
-dev: clean test build run format
-
-.PHONY: ci
-ci: lint test build
 
 .PHONY: container/build
 container/build:
@@ -53,17 +53,17 @@ container/rebuild:
 
 .PHONY: container/run
 container/run: container/build
-	docker run --rm -it -v $(PWD):$(PWD) -w $(PWD) $(IMAGE_NAME) ./example/example.go > ./example/example_prop.go
-	go run ./cmd/example/main.go
+	docker run --rm -it -v $(PWD):$(PWD) -w $(PWD) $(IMAGE_NAME) ./example/basic/user.go > ./example/basic/user_prop.go
+	go run ./cmd/example/basic/main.go
 
 .PHONY: version/patch
 version/patch: test lint
 	git fetch
 	git checkout main
 	git pull
-	docker run --rm hidori/semver -i patch `cat ./meta/version.txt` > ./meta/version.txt
-	git add ./meta/version.txt
+	docker run --rm hidori/semver -i patch `cat ./public/meta/version.txt` > ./public/meta/version.txt
+	git add ./public/meta/version.txt
 	git commit -m 'Updated version.txt'
 	git push
-	git tag v`cat ./meta/version.txt`
+	git tag v`cat ./public/meta/version.txt`
 	git push origin --tags

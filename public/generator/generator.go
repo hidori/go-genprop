@@ -16,29 +16,33 @@ import (
 	"golang.org/x/text/language"
 )
 
+// GeneratorConfig holds configuration for the code generator.
 type GeneratorConfig struct {
 	TagName        string
 	Initialism     []string
-	Validate       bool
 	ValidationFunc string
 	ValidationTag  string
 }
 
+// Generator generates getter and setter methods for struct fields.
 type Generator struct {
 	config *GeneratorConfig
 }
 
+// NewGenerator creates a new Generator with the given configuration.
 func NewGenerator(config *GeneratorConfig) *Generator {
 	return &Generator{
 		config: config,
 	}
 }
 
+// Generate generates getter and setter methods for struct fields based on tags.
 func (g *Generator) Generate(fileSet *token.FileSet, file *ast.File) ([]ast.Decl, error) {
 	var decls []ast.Decl
 
 	for _, d := range file.Decls {
 		genDecl := typeutil.AsOrEmpty[*ast.GenDecl](d)
+
 		if genDecl == nil {
 			continue
 		}
@@ -54,7 +58,7 @@ func (g *Generator) Generate(fileSet *token.FileSet, file *ast.File) ([]ast.Decl
 	return decls, nil
 }
 
-//nolint:exhaustive
+//nolint:exhaustive // Only IMPORT/TYPE tokens are processed, others handled by default case
 func (g *Generator) fromGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
 	switch genDecl.Tok {
 	case token.IMPORT:
@@ -73,6 +77,7 @@ func (g *Generator) fromTypeGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
 
 	for _, s := range genDecl.Specs {
 		typeSpec := typeutil.AsOrEmpty[*ast.TypeSpec](s)
+
 		if typeSpec == nil {
 			continue
 		}
@@ -90,6 +95,7 @@ func (g *Generator) fromTypeGenDecl(genDecl *ast.GenDecl) ([]ast.Decl, error) {
 
 func (g *Generator) fromTypeSpec(typeSpec *ast.TypeSpec) ([]ast.Decl, error) {
 	structType := typeutil.AsOrEmpty[*ast.StructType](typeSpec.Type)
+
 	if structType == nil {
 		return []ast.Decl{}, nil
 	}
@@ -134,28 +140,33 @@ func (g *Generator) fromField(structName string, field *ast.Field) ([]ast.Decl, 
 	var decls []ast.Decl
 
 	for _, directive := range directives {
-		switch directive {
-		case "get":
-			decl := g.getterFuncDecl(structName, field)
-			if decl != nil {
-				decls = append(decls, decl)
-			}
-		case "set":
-			decl := g.setterFuncDecl("Set", structName, field)
-			if decl != nil {
-				decls = append(decls, decl)
-			}
-		case "set=private":
-			decl := g.setterFuncDecl("set", structName, field)
-			if decl != nil {
-				decls = append(decls, decl)
-			}
-		default:
-			return nil, errors.Wrapf(errInvalidTagValue, "directive=%s", directive)
+		decl, err := g.processDirective(directive, structName, field)
+		if err != nil {
+			return nil, err
+		}
+
+		if decl != nil {
+			decls = append(decls, decl)
 		}
 	}
 
 	return decls, nil
+}
+
+func (g *Generator) processDirective(directive, structName string, field *ast.Field) (ast.Decl, error) {
+	switch directive {
+	case "get":
+		return g.getterFuncDecl(structName, field), nil
+
+	case "set":
+		return g.setterFuncDecl("Set", structName, field), nil
+
+	case "set=private":
+		return g.setterFuncDecl("set", structName, field), nil
+
+	default:
+		return nil, errors.Wrapf(errInvalidTagValue, "directive=%s", directive)
+	}
 }
 
 func (g *Generator) getterFuncDecl(structName string, field *ast.Field) ast.Decl {
@@ -173,9 +184,11 @@ func (g *Generator) getterFuncDecl(structName string, field *ast.Field) ast.Decl
 			),
 		},
 	)
+
 	name := astutil.NewIdent(
 		"Get" + g.prepareFieldName(field.Names[0].Name),
 	)
+
 	funcType := astutil.NewFuncType(
 		nil,
 		nil,
@@ -185,6 +198,7 @@ func (g *Generator) getterFuncDecl(structName string, field *ast.Field) ast.Decl
 			},
 		),
 	)
+
 	body := astutil.NewBlockStmt(
 		[]ast.Stmt{
 			astutil.NewReturnStmt(
@@ -236,10 +250,13 @@ func (g *Generator) setterFuncNoValidationDecl(verb string, structName string, f
 			),
 		},
 	)
+
 	name := astutil.NewIdent(
 		verb + g.prepareFieldName(field.Names[0].Name),
 	)
+
 	funcType := g.buildSetterFuncType(field, false)
+
 	body := astutil.NewBlockStmt(
 		[]ast.Stmt{
 			astutil.NewAssignStmt(
@@ -262,18 +279,20 @@ func (g *Generator) setterFuncNoValidationDecl(verb string, structName string, f
 	}
 }
 
-func (g *Generator) setterFuncWithValidationDecl(verb string, structName string, field *ast.Field, tag string) ast.Decl {
+func (g *Generator) setterFuncWithValidationDecl(
+	verb string, structName string, field *ast.Field, tag string,
+) ast.Decl {
 	if field.Tag == nil || len(field.Names) == 0 {
 		return nil
 	}
 
-	t1, err := strconv.Unquote(field.Tag.Value)
+	tagValue, err := strconv.Unquote(field.Tag.Value)
 	if err != nil {
 		return nil
 	}
 
-	t2 := reflect.StructTag(t1).Get(g.config.ValidationTag)
-	if len(t2) < 1 {
+	validationTag := reflect.StructTag(tagValue).Get(g.config.ValidationTag)
+	if len(validationTag) < 1 {
 		return nil
 	}
 
@@ -391,7 +410,6 @@ func (g *Generator) prepareFieldName(name string) string {
 		for _, s := range g.config.Initialism {
 			if cases.Title(language.Und).String(s) == head {
 				head = strings.ToUpper(head)
-
 				break
 			}
 		}
