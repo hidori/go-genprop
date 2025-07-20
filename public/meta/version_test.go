@@ -20,7 +20,7 @@ func TestGetVersion(t *testing.T) {
 		{
 			name:         "success: semantic version format",
 			pattern:      `^v\d+\.\d+\.\d+(-[a-zA-Z0-9\-\.]+)?(\+[a-zA-Z0-9\-\.]+)?$`,
-			expectedVal:  "v0.0.21",
+			expectedVal:  "v0.0.22",
 			wantNotEmpty: true,
 		},
 	}

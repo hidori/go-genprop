@@ -57,7 +57,7 @@ Example: [example/basic/user.go](example/basic/user.go)
 ### 2. Generate methods
 
 ```bash
-genprop user.go > user_generated.go
+go tool genprop user.go > user_generated.go
 ```
 
 OUTPUT:
@@ -104,16 +104,16 @@ Example: [cmd/example/basic/main.go](cmd/example/basic/main.go)
 
 ```bash
 # Basic usage
-genprop input.go > output.go
+go tool genprop input.go > output.go
 
 # Custom validation function
-genprop -validation-func="myValidate" input.go > output.go
+go tool genprop -validation-func="myValidate" input.go > output.go
 
 # Custom initialisms
-genprop -initialism="id,url,api,json,uuid" input.go > output.go
+go tool genprop -initialism="id,url,api,json,uuid" input.go > output.go
 
 # Combine multiple options
-genprop -validation-func="validate" -initialism="id,api" input.go > output.go
+go tool genprop -validation-func="validate" -initialism="id,api" input.go > output.go
 ```
 
 #### Available Flags
@@ -197,7 +197,7 @@ Example: [example/advanced/user.go](example/advanced/user.go)
 ### 2. Generate validation methods
 
 ```bash
-genprop user.go > user_prop.go
+go tool genprop user.go > user_prop.go
 ```
 
 OUTPUT:
@@ -295,5 +295,5 @@ func (u *User) GetName() string { /* your existing getter */ }
 **Solution**: Use the `-initialism` flag with comma-separated values:
 
 ```bash
-genprop -initialism="id,url,api,json,uuid,sql" input.go
+go tool genprop -initialism="id,url,api,json,uuid,sql" input.go
 ```
