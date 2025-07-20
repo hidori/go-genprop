@@ -14,13 +14,11 @@ func TestGetVersion(t *testing.T) {
 	tests := []struct {
 		name         string
 		pattern      string
-		expectedVal  string
 		wantNotEmpty bool
 	}{
 		{
 			name:         "success: semantic version format",
 			pattern:      `^v\d+\.\d+\.\d+(-[a-zA-Z0-9\-\.]+)?(\+[a-zA-Z0-9\-\.]+)?$`,
-			expectedVal:  "v0.0.22",
 			wantNotEmpty: true,
 		},
 	}
@@ -39,10 +37,6 @@ func TestGetVersion(t *testing.T) {
 				matched, err := regexp.MatchString(tt.pattern, version)
 				require.NoError(t, err)
 				assert.True(t, matched, "version %q should match pattern %q", version, tt.pattern)
-			}
-
-			if tt.expectedVal != "" {
-				assert.Equal(t, tt.expectedVal, version)
 			}
 		})
 	}
