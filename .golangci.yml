@@ -1,4 +1,5 @@
 version: "2"
+
 run:
   tests: false
   allow-parallel-runners: true
@@ -10,18 +11,9 @@ linters:
     - exhaustruct
     - forbidigo
     - gochecknoglobals
+    - nlreturn
     - revive
-  settings:
-    cyclop:
-      max-complexity: 20
-    gocyclo:
-      min-complexity: 20
-    lll:
-      line-length: 180
-
-  exclusions:
-    paths:
-      - ".*example/.*\\.go$"
+    - wsl
 
 formatters:
   exclusions:

@@ -1,6 +1,6 @@
 {
-    "makefile.configureOnOpen": false,
-    "files.associations": {
-        "LICENSE": "plaintext"
-    }
+  "files.watcherExclude": {
+    "**/tmp/**": true
+  },
+  "workbench.startupEditor": "readme"
 }

@@ -28,6 +28,9 @@ type SuccessStruct struct {
 
 	api         string `property:"get"`
 	apiEndpoint string `property:"get"`
+
+	password    string `property:"set=private"`
+	secretKey   string `property:"get,set=private"`
 }
 
 type OtherSuccessStruct struct {

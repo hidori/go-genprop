@@ -1,8 +1,6 @@
 module github.com/hidori/go-genprop
 
-go 1.23.0
-
-toolchain go1.24.1
+go 1.24.0
 
 require (
 	github.com/go-playground/validator/v10 v10.27.0
@@ -28,3 +26,5 @@ require (
 	golang.org/x/sys v0.34.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+tool golang.org/x/tools/cmd/goimports
