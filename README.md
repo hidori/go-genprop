@@ -163,11 +163,11 @@ Simple getter and setter generation with property tags.
 
 [View Example →](example/basic/README.md)
 
-### Advanced Features
+### Private Setter Features
 
 Validation integration with private setters and error handling.
 
-[View Example →](example/advanced/README.md)
+[View Example →](example/private-setter/README.md)
 
 ### Initialism Support
 

@@ -27,15 +27,15 @@ build:
 .PHONY: example/generate
 example/generate:
 	go run ./cmd/genprop/main.go -- ./example/basic/user.go > example/basic/user_prop.go
-	go run ./cmd/genprop/main.go -- ./example/advanced/user.go > example/advanced/user_prop.go
+	go run ./cmd/genprop/main.go -- ./example/private-setter/user.go > example/private-setter/user_prop.go
 	go run ./cmd/genprop/main.go -initialism="id,url,api,json,xml,sql,http,uuid" -- ./example/initialism/api_client.go > example/initialism/api_client_prop.go
-	go run ./cmd/genprop/main.go -new-func -- ./example/new/models.go > example/new/models_prop.go
+	go run ./cmd/genprop/main.go -new-func -- ./example/new/user.go > example/new/user_prop.go
 	go run ./cmd/genprop/main.go -new-func -validation-func="validateField" -validation-tag="validate" -- ./example/validate/account.go > example/validate/account_prop.go
 
 .PHONY: example/run
 example/run: example/generate
 	go run ./cmd/example/basic/main.go
-	go run ./cmd/example/advanced/main.go
+	go run ./cmd/example/private-setter/main.go
 	go run ./cmd/example/initialism/main.go
 	go run ./cmd/example/new/main.go
 	go run ./cmd/example/validate/main.go

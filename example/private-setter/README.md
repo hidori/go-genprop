@@ -1,4 +1,4 @@
-# Advanced Example - Validation Support
+# Private Setter Example - Validation Support
 
 This example demonstrates go-genprop with validation integration using go-playground/validator.
 
@@ -6,7 +6,7 @@ This example demonstrates go-genprop with validation integration using go-playgr
 
 - `user.go` - Struct definition with validation tags
 - `user_prop.go` - Generated property methods (auto-generated)
-- `../cmd/example/advanced/main.go` - Usage example
+- `../cmd/example/private-setter/main.go` - Usage example
 
 ## Features Demonstrated
 

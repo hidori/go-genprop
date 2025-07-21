@@ -4,8 +4,8 @@ This example demonstrates automatic constructor generation with the `-new-func` 
 
 ## Files
 
-- `models.go` - Struct definition for constructor generation
-- `models_prop.go` - Generated property methods and constructor (auto-generated)
+- `user.go` - Struct definition for constructor generation
+- `user_prop.go` - Generated property methods and constructor (auto-generated)
 - `../cmd/example/new/main.go` - Usage example
 
 ## Features Demonstrated
@@ -31,7 +31,7 @@ type User struct {
 ## Code Generation
 
 ```bash
-go tool genprop -new-func models.go > models_prop.go
+go tool genprop -new-func user.go > user_prop.go
 ```
 
 ## Generated Output

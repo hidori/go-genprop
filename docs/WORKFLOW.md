@@ -57,7 +57,7 @@ make example/run # サンプル動作確認
 
 - **docs/**: ドキュメント類
 - **example/basic/**: 基本例
-- **example/advanced/**: 高度な例
+- **example/private-setter/**: private setter例
 - **cmd/**: コマンド
 - **public/**: 公開パッケージ
 - **internal/app/**: 内部パッケージ
@@ -75,7 +75,7 @@ make example/run # サンプル動作確認
 - パッケージ名と一致する適切なファイル名を使用
 - テストファイル: `_test.go`
 - モックファイル: `_mock.go`
-- 例: `example/basic/user.go`, `example/advanced/user.go`
+- 例: `example/basic/user.go`, `example/private-setter/user.go`
 
 ## バージョン管理
 

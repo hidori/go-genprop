@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	example "github.com/hidori/go-genprop/example/advanced"
+	example "github.com/hidori/go-genprop/example/private-setter"
 )
 
 func main() {
