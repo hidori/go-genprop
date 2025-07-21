@@ -1,0 +1,58 @@
+package data
+
+import (
+	"fmt"
+	"go/ast"
+	"regexp"
+	"time"
+)
+
+// TestSetterStruct represents a comprehensive test for setter functionality
+// Tests public setters, private setters, and various type handling
+type TestSetterStruct struct {
+	// Built-in types - public setters
+	intField    int     `property:"set"` // Expected: func (t *TestSetterStruct) SetIntField(v int) { t.intField = v }
+	floatField  float64 `property:"set"` // Expected: func (t *TestSetterStruct) SetFloatField(v float64) { t.floatField = v }
+	boolField   bool    `property:"set"` // Expected: func (t *TestSetterStruct) SetBoolField(v bool) { t.boolField = v }
+	stringField string  `property:"set"` // Expected: func (t *TestSetterStruct) SetStringField(v string) { t.stringField = v }
+
+	// Pointer types - public setters
+	intPtr    *int     `property:"set"` // Expected: func (t *TestSetterStruct) SetIntPtr(v *int) { t.intPtr = v }
+	stringPtr *string  `property:"set"` // Expected: func (t *TestSetterStruct) SetStringPtr(v *string) { t.stringPtr = v }
+
+	// Collection types - public setters
+	sliceField []string           `property:"set"` // Expected: func (t *TestSetterStruct) SetSliceField(v []string) { t.sliceField = v }
+	mapField   map[string]int     `property:"set"` // Expected: func (t *TestSetterStruct) SetMapField(v map[string]int) { t.mapField = v }
+	arrayField [5]int             `property:"set"` // Expected: func (t *TestSetterStruct) SetArrayField(v [5]int) { t.arrayField = v }
+
+	// Interface types - public setters
+	interfaceField interface{}     `property:"set"` // Expected: func (t *TestSetterStruct) SetInterfaceField(v interface{}) { t.interfaceField = v }
+
+	// Custom struct types - public setters
+	customStruct    TestCustomStruct  `property:"set"` // Expected: func (t *TestSetterStruct) SetCustomStruct(v TestCustomStruct) { t.customStruct = v }
+	customStructPtr *TestCustomStruct `property:"set"` // Expected: func (t *TestSetterStruct) SetCustomStructPtr(v *TestCustomStruct) { t.customStructPtr = v }
+
+	// External package types - public setters
+	timeField time.Time `property:"set"` // Expected: func (t *TestSetterStruct) SetTimeField(v time.Time) { t.timeField = v }
+	astFile   ast.File  `property:"set"` // Expected: func (t *TestSetterStruct) SetAstFile(v ast.File) { t.astFile = v }
+
+	// Function types - public setters
+	funcField func(string) int `property:"set"` // Expected: func (t *TestSetterStruct) SetFuncField(v func(string) int) { t.funcField = v }
+
+	// Channel types - public setters
+	chanField chan string `property:"set"` // Expected: func (t *TestSetterStruct) SetChanField(v chan string) { t.chanField = v }
+
+	// Private setter tests
+	password      string `property:"set=private"` // Expected: func (t *TestSetterStruct) setPassword(v string) { t.password = v }
+	secretKey     string `property:"set=private"` // Expected: func (t *TestSetterStruct) setSecretKey(v string) { t.secretKey = v }
+	internalToken string `property:"set=private"` // Expected: func (t *TestSetterStruct) setInternalToken(v string) { t.internalToken = v }
+
+	// Mixed public and private setters for comparison
+	publicData  string `property:"set"`         // Expected: func (t *TestSetterStruct) SetPublicData(v string) { t.publicData = v }
+	privateData string `property:"set=private"` // Expected: func (t *TestSetterStruct) setPrivateData(v string) { t.privateData = v }
+}
+
+// TestCustomStruct represents a simple custom type for testing
+type TestCustomStruct struct {
+	Value string
+}
