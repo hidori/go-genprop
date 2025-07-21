@@ -205,8 +205,9 @@ func (g *Generator) buildNewFuncParams(fieldList *ast.FieldList) ([]*ast.Field, 
 
 	const estimatedStmtsPerField = 2
 
-	params := make([]*ast.Field, 0, fieldCount)
-	assignments := make([]ast.Stmt, 0, fieldCount*estimatedStmtsPerField) // Estimate 2 statements per field
+	constructorParams := make([]*ast.Field, 0, fieldCount)
+	// Estimate estimatedStmtsPerField statements per field
+	assignments := make([]ast.Stmt, 0, fieldCount*estimatedStmtsPerField)
 
 	var (
 		hasValidation bool
@@ -220,7 +221,7 @@ func (g *Generator) buildNewFuncParams(fieldList *ast.FieldList) ([]*ast.Field, 
 
 		param, assignment, validation := g.processFieldForConstructor(field, &errDeclared)
 
-		params = append(params, param)
+		constructorParams = append(constructorParams, param)
 		if assignment != nil {
 			assignments = append(assignments, assignment...)
 		}
@@ -230,7 +231,7 @@ func (g *Generator) buildNewFuncParams(fieldList *ast.FieldList) ([]*ast.Field, 
 		}
 	}
 
-	return params, assignments, hasValidation
+	return constructorParams, assignments, hasValidation
 }
 
 func (g *Generator) processFieldForConstructor(field *ast.Field, errDeclared *bool) (*ast.Field, []ast.Stmt, bool) {
@@ -256,7 +257,8 @@ func (g *Generator) processFieldForConstructor(field *ast.Field, errDeclared *bo
 
 	_, assignment, validation := g.processFieldForNewFunc(field, tagValue, propertyTag)
 
-	if assignment != nil && validation && len(assignment) >= 2 {
+	const minStatementsForValidation = 2
+	if assignment != nil && validation && len(assignment) >= minStatementsForValidation {
 		g.adjustErrDeclaration(assignment, errDeclared)
 	}
 
