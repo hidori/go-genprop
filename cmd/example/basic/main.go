@@ -6,8 +6,6 @@ import (
 	example "github.com/hidori/go-genprop/example/basic"
 )
 
-//go:generate go run ../../../genprop/main.go ../../../example/basic/user.go > ../../../example/basic/user_prop.go
-
 func main() {
 	// Create a new user using the constructor
 	user := example.NewUser(1, "John Doe")

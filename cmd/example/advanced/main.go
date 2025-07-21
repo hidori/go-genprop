@@ -7,8 +7,6 @@ import (
 	example "github.com/hidori/go-genprop/example/advanced"
 )
 
-//go:generate go run ../../../genprop/main.go ../../../example/advanced/user.go > ../../../example/advanced/user_prop.go
-
 func main() {
 	// Create a new user with validation
 	user, err := example.NewUser(1, "John Doe", "john@example.com")
