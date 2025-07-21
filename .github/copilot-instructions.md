@@ -39,11 +39,11 @@
 ## 詳細ドキュメント目次
 
 ### 作業別参照ガイド
-- **開発作業時**: `docs/WORKFLOW.md` - 開発フロー、プロジェクト構造、一時ファイル管理
-- **コード記述時**: `docs/CODING.md` - コーディング規約、命名規則、エラー処理
-- **Lint対応時**: `docs/LINT.md` - Lint設定、エラー対処法
-- **テスト作成時**: `docs/TESTING.md` - テスト規約、命名規則、データ管理
-- **技術判断時**: `docs/KNOWLEDGE.md` - Decision Record フォーマット、技術的意思決定の記録方法
+- **開発作業時**: `docs/development/WORKFLOW.md` - 開発フロー、プロジェクト構造、一時ファイル管理
+- **コード記述時**: `docs/development/CODING.md` - コーディング規約、命名規則、エラー処理
+- **Lint対応時**: `docs/development/LINT.md` - Lint設定、エラー対処法
+- **テスト作成時**: `docs/development/TESTING.md` - テスト規約、命名規則、データ管理
+- **技術判断時**: `docs/development/KNOWLEDGE.md` - Decision Record フォーマット、技術的意思決定の記録方法
 
 ### 参照優先度
 1. この文書の重要ルール（必須遵守）
