@@ -53,8 +53,6 @@ func NewUser(id int, name string) *User {
 }
 ```
 
-Example: [example/basic/user.go](example/basic/user.go)
-
 ### 2. Generate methods
 
 ```bash
@@ -78,8 +76,6 @@ func (t *User) SetName(v string) {
 }
 ```
 
-Example: [example/basic/user_prop.go](example/basic/user_prop.go)
-
 ### 3. Use the generated methods
 
 ```go
@@ -94,8 +90,6 @@ fmt.Printf("User Name: %s\n", user.GetName()) // Output: User Name: John Doe
 user.SetName("Jane Smith")
 fmt.Printf("Updated Name: %s\n", user.GetName()) // Output: Updated Name: Jane Smith
 ```
-
-Example: [cmd/example/basic/main.go](cmd/example/basic/main.go)
 
 ## Usage
 
@@ -161,73 +155,28 @@ docker run --rm -v ${PWD}:${PWD} -w ${PWD} hidori/genprop:latest input.go > outp
 
 Simple getter and setter generation with property tags.
 
-[View Example →](example/basic/README.md)
+[View Example](example/basic/README.md)
 
 ### Private Setter Features
 
 Validation integration with private setters and error handling.
 
-[View Example →](example/private-setter/README.md)
+[View Example](example/private-setter/README.md)
 
 ### Initialism Support
 
 Automatic handling of common programming acronyms (ID, URL, API, etc.).
 
-[View Example →](example/initialism/README.md)
+[View Example](example/initialism/README.md)
 
 ### Constructor Generation
 
 Automatic constructor generation with the `-new-func` option.
 
-[View Example →](example/new/README.md)
+[View Example](example/new/README.md)
 
 ### Validation Integration
 
 Seamless integration with go-playground/validator for robust field validation.
 
-[View Example →](example/validate/README.md)
-
-## Common Issues & Solutions
-
-### Issue: "validateFieldValue function not found"
-
-**Solution**: Make sure your validation function is defined in the same package:
-
-```go
-func validateFieldValue(name string, v any, tag string) error {
-    // Your validation logic here
-    return nil
-}
-```
-
-### Issue: "Generated methods conflict with existing methods"
-
-**Solution**: Rename your existing methods or exclude the field from code generation:
-
-```go
-// Option 1: Rename existing method
-type User struct {
-    name string `property:"get,set"`
-}
-func (u *User) GetUserName() string { /* existing method with different name */ }
-
-// Option 2: Exclude field from generation
-type User struct {
-    name string `property:"-"` // Skip this field
-}
-func (u *User) GetName() string { /* your existing method */ }
-
-// Option 3: Use only setter generation
-type User struct {
-    name string `property:"set"` // Only generate setter
-}
-func (u *User) GetName() string { /* your existing getter */ }
-```
-
-### Issue: "Initialism not working correctly"
-
-**Solution**: Use the `-initialism` flag with comma-separated values:
-
-```bash
-go tool genprop -initialism="id,url,api,json,uuid,sql" input.go
-```
+[View Example](example/validate/README.md)
