@@ -1,6 +1,0 @@
-package test
-
-// TestStruct represents a test struct with property generation
-type TestStruct struct {
-	field string `property:"get,set"`
-}

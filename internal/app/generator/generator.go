@@ -10,21 +10,21 @@ import (
 )
 
 const (
-	tagName = "property"
+	propertyTag = "property"
 )
 
 // GenerateCode generates AST declarations for getter and setter methods based on the given file and configuration.
 func GenerateCode(
 	file *ast.File,
-	initialismFlag, validationFuncFlag, validationTagFlag string,
-	generateNewFunc bool,
+	initialism, validationFunc, validationTag string,
+	newFunc bool,
 ) ([]ast.Decl, error) {
 	generator := generator.NewGenerator(&generator.GeneratorConfig{
-		TagName:         tagName,
-		GenerateNewFunc: generateNewFunc,
-		Initialism:      strings.Split(initialismFlag, ","),
-		ValidationFunc:  validationFuncFlag,
-		ValidationTag:   validationTagFlag,
+		PropertyTag:    propertyTag,
+		Initialism:     strings.Split(initialism, ","),
+		ValidationFunc: validationFunc,
+		ValidationTag:  validationTag,
+		NewFunc:        newFunc,
 	})
 
 	decls, err := generator.Generate(token.NewFileSet(), file)

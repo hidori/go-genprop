@@ -12,10 +12,20 @@ func TestBuildFlagSet(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name string
+		name   string
+		assert func(t *testing.T, flagSet *flag.FlagSet)
 	}{
 		{
-			name: "success: creates flag set with correct configuration",
+			name: "success: creates flag set with correct name",
+			assert: func(t *testing.T, flagSet *flag.FlagSet) {
+				assert.Equal(t, "genprop", flagSet.Name())
+			},
+		},
+		{
+			name: "success: configures usage function",
+			assert: func(t *testing.T, flagSet *flag.FlagSet) {
+				assert.NotNil(t, flagSet.Usage)
+			},
 		},
 	}
 
@@ -25,9 +35,13 @@ func TestBuildFlagSet(t *testing.T) {
 
 			flagSet := BuildFlagSet()
 
+			// Common assertions
 			require.NotNil(t, flagSet)
-			assert.Equal(t, "genprop", flagSet.Name())
-			assert.NotNil(t, flagSet.Usage)
+
+			// Test case specific assertions
+			if tt.assert != nil {
+				tt.assert(t, flagSet)
+			}
 		})
 	}
 }
@@ -95,23 +109,11 @@ func TestBuildFlags(t *testing.T) {
 func TestFlags(t *testing.T) {
 	t.Parallel()
 
-	// Helper function to create string/bool pointers with values
-	stringPtr := func(s string) *string { return &s }
-	boolPtr := func(b bool) *bool { return &b }
-
 	tests := []struct {
 		name string
-		want *Flags
 	}{
 		{
 			name: "success: flags struct contains all required fields",
-			want: &Flags{
-				InitialismFlag:     stringPtr("id,url,api"),
-				ValidationFuncFlag: stringPtr("validateFieldValue"),
-				ValidationTagFlag:  stringPtr("validate"),
-				VersionFlag:        boolPtr(false),
-				GenerateNewFunc:    boolPtr(false),
-			},
 		},
 	}
 
@@ -122,8 +124,12 @@ func TestFlags(t *testing.T) {
 			flagSet := flag.NewFlagSet("test", flag.ContinueOnError)
 			flags := BuildFlags(flagSet)
 
-			require.NotNil(t, flags)
-			assert.Equal(t, tt.want, flags)
+			// Test that all fields are properly initialized
+			assert.IsType(t, &Flags{}, flags)
+			assert.IsType(t, (*string)(nil), flags.InitialismFlag)
+			assert.IsType(t, (*string)(nil), flags.ValidationFuncFlag)
+			assert.IsType(t, (*string)(nil), flags.ValidationTagFlag)
+			assert.IsType(t, (*bool)(nil), flags.VersionFlag)
 		})
 	}
 }

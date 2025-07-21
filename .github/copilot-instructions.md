@@ -13,7 +13,8 @@
 
 ## 重要ルール（必須遵守）
 
-- **一時ファイルは必ず`tmp/`ディレクトリに作成し、作業完了後は`make clean`で削除**
+- **作業前に`make clean`で一時ファイルをすべて削除し、一時ファイルは必ずプロジェクト直下の`tmp/`ディレクトリに作成し、作業完了後は`make clean`で削除**
+- **一時ファイルの作成時は絶対パス`/home/hidori/workspaces/hidori/go-genprop/tmp/`を使用**
 - **コード変更前に必ず`make format`と`make test`を実行**
 - **コード変更後に必ず`make format`、`make test`、`make example/run`を実行**
 - **許可なく新規ファイルを作成しない**

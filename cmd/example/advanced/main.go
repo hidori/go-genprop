@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hidori/go-genprop/example/advanced"
+	example "github.com/hidori/go-genprop/example/advanced"
 )
 
 //go:generate go run ../../../genprop/main.go ../../../example/advanced/user.go > ../../../example/advanced/user_prop.go
 
 func main() {
 	// Create a new user with validation
-	user, err := advanced.NewUser(1, "John Doe", "john@example.com")
+	user, err := example.NewUser(1, "John Doe", "john@example.com")
 	if err != nil {
 		log.Fatal(err)
 	}

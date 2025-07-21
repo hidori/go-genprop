@@ -18,11 +18,11 @@ import (
 
 // GeneratorConfig holds configuration for the code generator.
 type GeneratorConfig struct {
-	TagName         string
-	GenerateNewFunc bool
-	Initialism      []string
-	ValidationFunc  string
-	ValidationTag   string
+	PropertyTag    string
+	Initialism     []string
+	ValidationFunc string
+	ValidationTag  string
+	NewFunc        bool
 }
 
 // Generator generates getter and setter methods for struct fields.
@@ -104,8 +104,8 @@ func (g *Generator) fromTypeSpec(typeSpec *ast.TypeSpec) ([]ast.Decl, error) {
 	var decls []ast.Decl
 
 	// Generate New function if configured
-	if g.config.GenerateNewFunc {
-		newFunc := g.newFuncDecl(typeSpec.Name.Name)
+	if g.config.NewFunc {
+		newFunc := g.newFuncDecl(typeSpec.Name.Name, structType.Fields)
 		if newFunc != nil {
 			decls = append(decls, newFunc)
 		}
@@ -149,7 +149,7 @@ func (g *Generator) fromField(structName string, field *ast.Field) ([]ast.Decl, 
 		return nil, errors.WithStack(err)
 	}
 
-	propertyTag := reflect.StructTag(tagValue).Get(g.config.TagName)
+	propertyTag := reflect.StructTag(tagValue).Get(g.config.PropertyTag)
 	if propertyTag == "" || propertyTag == "-" {
 		return []ast.Decl{}, nil
 	}
@@ -188,37 +188,265 @@ func (g *Generator) processDirective(directive, structName string, field *ast.Fi
 	}
 }
 
-func (g *Generator) newFuncDecl(structName string) ast.Decl {
-	name := astutil.NewIdent("New" + structName)
+func (g *Generator) newFuncDecl(structName string, fieldList *ast.FieldList) ast.Decl {
+	params, assignments, hasValidation := g.buildNewFuncParams(fieldList)
+	funcType := g.buildNewFuncType(structName, params, hasValidation)
+	body := g.buildNewFuncBody(structName, assignments, hasValidation)
 
-	funcType := astutil.NewFuncType(
-		nil,
-		nil,
-		astutil.NewFieldList(
-			[]*ast.Field{
+	return &ast.FuncDecl{
+		Name: astutil.NewIdent("New" + structName),
+		Type: funcType,
+		Body: body,
+	}
+}
+
+func (g *Generator) buildNewFuncParams(fieldList *ast.FieldList) ([]*ast.Field, []ast.Stmt, bool) {
+	fieldCount := len(fieldList.List)
+
+	const estimatedStmtsPerField = 2
+
+	params := make([]*ast.Field, 0, fieldCount)
+	assignments := make([]ast.Stmt, 0, fieldCount*estimatedStmtsPerField) // Estimate 2 statements per field
+
+	var (
+		hasValidation bool
+		errDeclared   bool
+	)
+
+	for _, field := range fieldList.List {
+		if len(field.Names) == 0 {
+			continue
+		}
+
+		param, assignment, validation := g.processFieldForConstructor(field, &errDeclared)
+
+		params = append(params, param)
+		if assignment != nil {
+			assignments = append(assignments, assignment...)
+		}
+
+		if validation {
+			hasValidation = true
+		}
+	}
+
+	return params, assignments, hasValidation
+}
+
+func (g *Generator) processFieldForConstructor(field *ast.Field, errDeclared *bool) (*ast.Field, []ast.Stmt, bool) {
+	paramName := field.Names[0].Name
+	param := astutil.NewField(
+		[]*ast.Ident{astutil.NewIdent(paramName)},
+		field.Type,
+	)
+
+	if field.Tag == nil {
+		return param, g.createDirectAssignment(paramName), false
+	}
+
+	tagValue, err := strconv.Unquote(field.Tag.Value)
+	if err != nil {
+		return param, nil, false
+	}
+
+	propertyTag := reflect.StructTag(tagValue).Get(g.config.PropertyTag)
+	if propertyTag == "" || propertyTag == "-" {
+		return param, g.createDirectAssignment(paramName), false
+	}
+
+	_, assignment, validation := g.processFieldForNewFunc(field, tagValue, propertyTag)
+
+	if assignment != nil && validation && len(assignment) >= 2 {
+		g.adjustErrDeclaration(assignment, errDeclared)
+	}
+
+	return param, assignment, validation
+}
+
+func (g *Generator) createDirectAssignment(paramName string) []ast.Stmt {
+	return []ast.Stmt{
+		&ast.AssignStmt{
+			Lhs: []ast.Expr{
+				astutil.NewSelectorExpr(astutil.NewIdent("s"), astutil.NewIdent(paramName)),
+			},
+			Tok: token.ASSIGN,
+			Rhs: []ast.Expr{astutil.NewIdent(paramName)},
+		},
+	}
+}
+
+func (g *Generator) adjustErrDeclaration(assignment []ast.Stmt, errDeclared *bool) {
+	if *errDeclared {
+		// Change := to = for subsequent err assignments
+		if assignStmt, ok := assignment[0].(*ast.AssignStmt); ok {
+			assignStmt.Tok = token.ASSIGN
+		}
+	} else {
+		*errDeclared = true
+	}
+}
+
+func (g *Generator) processFieldForNewFunc(
+	field *ast.Field, tagValue, propertyTag string,
+) (*ast.Field, []ast.Stmt, bool) {
+	paramName := field.Names[0].Name
+	param := astutil.NewField(
+		[]*ast.Ident{astutil.NewIdent(paramName)},
+		field.Type,
+	)
+
+	// If no property tag, use direct assignment
+	if propertyTag == "" {
+		return param, g.createDirectAssignment(paramName), false
+	}
+
+	directives := strings.Split(propertyTag, ",")
+	hasSetter, isPrivateSetter := g.parseSetterDirectives(directives)
+
+	// If there's no setter, use direct assignment
+	if !hasSetter {
+		return param, g.createDirectAssignment(paramName), false
+	}
+
+	return g.buildSetterAssignment(param, paramName, field, tagValue, isPrivateSetter)
+}
+
+func (g *Generator) parseSetterDirectives(directives []string) (bool, bool) {
+	var hasSetter, isPrivateSetter bool
+
+	for _, directive := range directives {
+		switch directive {
+		case "set":
+			hasSetter = true
+		case "set=private":
+			hasSetter = true
+			isPrivateSetter = true
+		}
+	}
+
+	return hasSetter, isPrivateSetter
+}
+
+func (g *Generator) buildSetterAssignment(
+	param *ast.Field, paramName string, field *ast.Field, tagValue string, isPrivateSetter bool,
+) (*ast.Field, []ast.Stmt, bool) {
+	validationTag := reflect.StructTag(tagValue).Get(g.config.ValidationTag)
+
+	methodName := "Set" + g.prepareFieldName(field.Names[0].Name)
+	if isPrivateSetter {
+		methodName = "set" + g.prepareFieldName(field.Names[0].Name)
+	}
+
+	if len(validationTag) > 0 {
+		// Add validation call
+		return param, []ast.Stmt{
+			astutil.NewAssignStmt(
+				[]ast.Expr{astutil.NewIdent("err")},
+				token.DEFINE,
+				[]ast.Expr{
+					&ast.CallExpr{
+						Fun:  astutil.NewSelectorExpr(astutil.NewIdent("s"), astutil.NewIdent(methodName)),
+						Args: []ast.Expr{astutil.NewIdent(paramName)},
+					},
+				},
+			),
+			&ast.IfStmt{
+				Cond: &ast.BinaryExpr{
+					Op: token.NEQ,
+					X:  astutil.NewIdent("err"),
+					Y:  astutil.NewIdent("nil"),
+				},
+				Body: astutil.NewBlockStmt([]ast.Stmt{
+					astutil.NewReturnStmt([]ast.Expr{
+						astutil.NewIdent("nil"),
+						astutil.NewIdent("err"),
+					}),
+				}),
+			},
+		}, true
+	}
+
+	// Direct setter call
+	return param, []ast.Stmt{
+		&ast.ExprStmt{
+			X: &ast.CallExpr{
+				Fun:  astutil.NewSelectorExpr(astutil.NewIdent("s"), astutil.NewIdent(methodName)),
+				Args: []ast.Expr{astutil.NewIdent(paramName)},
+			},
+		},
+	}, false
+}
+
+func (g *Generator) buildNewFuncType(structName string, params []*ast.Field, hasValidation bool) *ast.FuncType {
+	if hasValidation {
+		return astutil.NewFuncType(
+			nil,
+			astutil.NewFieldList(params),
+			astutil.NewFieldList([]*ast.Field{
 				astutil.NewField(nil, astutil.NewStarExpr(astutil.NewIdent(structName))),
+				astutil.NewField(nil, astutil.NewIdent("error")),
+			}),
+		)
+	}
+
+	return astutil.NewFuncType(
+		nil,
+		astutil.NewFieldList(params),
+		astutil.NewFieldList([]*ast.Field{
+			astutil.NewField(nil, astutil.NewStarExpr(astutil.NewIdent(structName))),
+		}),
+	)
+}
+
+func (g *Generator) buildNewFuncBody(structName string, assignments []ast.Stmt, hasValidation bool) *ast.BlockStmt {
+	// Special case for empty struct
+	if len(assignments) == 0 {
+		return astutil.NewBlockStmt([]ast.Stmt{
+			astutil.NewReturnStmt([]ast.Expr{
+				&ast.UnaryExpr{
+					Op: token.AND,
+					X:  astutil.NewCompositeLit(astutil.NewIdent(structName), nil),
+				},
+			}),
+		})
+	}
+
+	var bodyStmts []ast.Stmt
+
+	// Create struct instance
+	bodyStmts = append(bodyStmts,
+		astutil.NewAssignStmt(
+			[]ast.Expr{astutil.NewIdent("s")},
+			token.DEFINE,
+			[]ast.Expr{
+				&ast.UnaryExpr{
+					Op: token.AND,
+					X:  astutil.NewCompositeLit(astutil.NewIdent(structName), nil),
+				},
 			},
 		),
 	)
 
-	body := astutil.NewBlockStmt(
-		[]ast.Stmt{
-			astutil.NewReturnStmt(
-				[]ast.Expr{
-					&ast.UnaryExpr{
-						Op: token.AND,
-						X:  astutil.NewCompositeLit(astutil.NewIdent(structName), nil),
-					},
-				},
-			),
-		},
-	)
+	// Add field assignments
+	bodyStmts = append(bodyStmts, assignments...)
 
-	return &ast.FuncDecl{
-		Name: name,
-		Type: funcType,
-		Body: body,
+	// Add return statement
+	if hasValidation {
+		bodyStmts = append(bodyStmts,
+			astutil.NewReturnStmt([]ast.Expr{
+				astutil.NewIdent("s"),
+				astutil.NewIdent("nil"),
+			}),
+		)
+	} else {
+		bodyStmts = append(bodyStmts,
+			astutil.NewReturnStmt([]ast.Expr{
+				astutil.NewIdent("s"),
+			}),
+		)
 	}
+
+	return astutil.NewBlockStmt(bodyStmts)
 }
 
 func (g *Generator) getterFuncDecl(structName string, field *ast.Field) ast.Decl {

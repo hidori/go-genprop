@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-const tagName = "property"
+const propertyTag = "property"
 
 func TestGenerator_Generate(t *testing.T) {
 	t.Parallel()
@@ -22,83 +22,127 @@ func TestGenerator_Generate(t *testing.T) {
 	}
 
 	tests := []struct {
-		name            string
-		inputFileName   string
-		outputFileName  string
-		fields          fields
-		wantErr         bool
-		wantErrContains string
+		name           string
+		inputFileName  string
+		outputFileName string
+		fields         fields
+		wantErr        bool
+		wantErrMessage string
 	}{
 		{
 			name:           "success: returns ast.Decl",
-			inputFileName:  "../../testdata/public/generator/basic_getset_input.go.txt",
-			outputFileName: "../../testdata/public/generator/basic_getset_output.txt",
+			inputFileName:  "../../testdata/public/generator/new_func_input.go.txt",
+			outputFileName: "../../testdata/public/generator/new_func_output.go.txt",
 			fields: fields{
 				config: &GeneratorConfig{
-					TagName:    tagName,
-					Initialism: []string{"api"},
+					PropertyTag:    propertyTag,
+					Initialism:     []string{"api"},
+					ValidationFunc: "validateFieldValue",
+					ValidationTag:  "validate",
+					NewFunc:        true,
 				},
 			},
-			wantErr:         false,
-			wantErrContains: "",
 		},
 		{
 			name:          "failure: returns error for invalid tag",
 			inputFileName: "../../testdata/public/generator/invalid_directive_input.go.txt",
 			fields: fields{
 				config: &GeneratorConfig{
-					TagName:    tagName,
-					Initialism: []string{"api"},
+					PropertyTag: propertyTag,
+					Initialism:  []string{"api"},
 				},
 			},
-			wantErr:         true,
-			wantErrContains: "invalid tag value",
+			wantErr:        true,
+			wantErrMessage: "invalid tag value",
 		},
 		{
 			name:           "success: returns ast.Decl with validation",
 			inputFileName:  "../../testdata/public/generator/validation_input.go.txt",
-			outputFileName: "../../testdata/public/generator/validation_output.txt",
+			outputFileName: "../../testdata/public/generator/validation_output.go.txt",
 			fields: fields{
 				config: &GeneratorConfig{
-					TagName:        tagName,
-					Initialism:     []string{"api"},
+					PropertyTag:    propertyTag,
 					ValidationFunc: "validateFieldValue",
 					ValidationTag:  "validate",
+					NewFunc:        false,
 				},
 			},
 		},
 		{
 			name:           "success: returns ast.Decl with private setter",
 			inputFileName:  "../../testdata/public/generator/private_setter_input.go.txt",
-			outputFileName: "../../testdata/public/generator/private_setter_output.txt",
+			outputFileName: "../../testdata/public/generator/private_setter_output.go.txt",
 			fields: fields{
 				config: &GeneratorConfig{
-					TagName:    tagName,
-					Initialism: []string{"api"},
+					PropertyTag: propertyTag,
 				},
 			},
 		},
 		{
-			name:           "success: generates New function when GenerateNewFunc is true",
-			inputFileName:  "../../testdata/public/generator/generate_new_func_input.go.txt",
-			outputFileName: "../../testdata/public/generator/generate_new_func_output.txt",
+			name:           "success: getter only features",
+			inputFileName:  "../../testdata/public/generator/getter_input.go.txt",
+			outputFileName: "../../testdata/public/generator/getter_output.go.txt",
 			fields: fields{
 				config: &GeneratorConfig{
-					TagName:         tagName,
-					GenerateNewFunc: true,
-					Initialism:      []string{"api"},
+					PropertyTag: propertyTag,
 				},
 			},
 		},
 		{
-			name:           "success: generates only New function when no property tags present",
-			inputFileName:  "../../testdata/public/generator/new_func_only_input.go.txt",
-			outputFileName: "../../testdata/public/generator/new_func_only_output.txt",
+			name:           "success: setter only features",
+			inputFileName:  "../../testdata/public/generator/setter_input.go.txt",
+			outputFileName: "../../testdata/public/generator/setter_output.go.txt",
 			fields: fields{
 				config: &GeneratorConfig{
-					TagName:         tagName,
-					GenerateNewFunc: true,
-					Initialism:      []string{"api"},
+					PropertyTag: propertyTag,
+				},
+			},
+		},
+		{
+			name:           "success: all feature combinations",
+			inputFileName:  "../../testdata/public/generator/all_combinations_input.go.txt",
+			outputFileName: "../../testdata/public/generator/all_combinations_output.go.txt",
+			fields: fields{
+				config: &GeneratorConfig{
+					PropertyTag:    propertyTag,
+					ValidationFunc: "validateFieldValue",
+					ValidationTag:  "validate",
+					NewFunc:        false,
+				},
+			},
+		},
+		{
+			name:           "success: initialism option handling",
+			inputFileName:  "../../testdata/public/generator/initialism_input.go.txt",
+			outputFileName: "../../testdata/public/generator/initialism_output.go.txt",
+			fields: fields{
+				config: &GeneratorConfig{
+					PropertyTag: propertyTag,
+					Initialism:  []string{"id", "url", "api", "xml", "json", "http"},
+				},
+			},
+		},
+		{
+			name:           "success: custom validation function option",
+			inputFileName:  "../../testdata/public/generator/validation_func_input.go.txt",
+			outputFileName: "../../testdata/public/generator/validation_func_output.go.txt",
+			fields: fields{
+				config: &GeneratorConfig{
+					PropertyTag:    propertyTag,
+					ValidationFunc: "customValidateFunc",
+					ValidationTag:  "validate",
+				},
+			},
+		},
+		{
+			name:           "success: custom validation tag option",
+			inputFileName:  "../../testdata/public/generator/validation_tag_input.go.txt",
+			outputFileName: "../../testdata/public/generator/validation_tag_output.go.txt",
+			fields: fields{
+				config: &GeneratorConfig{
+					PropertyTag:    propertyTag,
+					ValidationFunc: "validateFieldValue",
+					ValidationTag:  "rules",
 				},
 			},
 		},
@@ -119,7 +163,7 @@ func TestGenerator_Generate(t *testing.T) {
 
 			got, err := NewGenerator(tt.fields.config).Generate(fset, f)
 			if err != nil && tt.wantErr {
-				assert.Contains(t, err.Error(), tt.wantErrContains)
+				assert.Contains(t, err.Error(), tt.wantErrMessage)
 
 				return
 			}
@@ -150,108 +194,12 @@ func TestGenerator_Generate(t *testing.T) {
 	}
 }
 
-func TestNewFuncDecl(t *testing.T) {
-	t.Parallel()
-
-	config := &GeneratorConfig{
-		TagName:         "property",
-		GenerateNewFunc: true,
-		Initialism:      []string{"api", "id"},
-		ValidationFunc:  "validate",
-		ValidationTag:   "validate",
-	}
-	generator := NewGenerator(config)
-
-	tests := []struct {
-		name       string
-		structName string
-		wantNil    bool
-	}{
-		{
-			name:       "success: generates New function for struct",
-			structName: "TestStruct",
-			wantNil:    false,
-		},
-		{
-			name:       "success: generates New function with camelCase struct name",
-			structName: "userAccount",
-			wantNil:    false,
-		},
-		{
-			name:       "success: generates New function with single character struct name",
-			structName: "A",
-			wantNil:    false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			decl := generator.newFuncDecl(tt.structName)
-
-			if tt.wantNil {
-				assert.Nil(t, decl)
-			} else {
-				require.NotNil(t, decl)
-
-				// Check if it's a function declaration
-				funcDecl, ok := decl.(*ast.FuncDecl)
-				require.True(t, ok, "Expected *ast.FuncDecl")
-
-				// Check function name
-				expectedName := "New" + tt.structName
-				assert.Equal(t, expectedName, funcDecl.Name.Name)
-
-				// Check that it has no receiver (it's a package-level function)
-				assert.Nil(t, funcDecl.Recv)
-
-				// Check that it has no parameters
-				assert.Nil(t, funcDecl.Type.Params)
-
-				// Check return type (should be *StructName)
-				require.NotNil(t, funcDecl.Type.Results)
-				require.Equal(t, 1, len(funcDecl.Type.Results.List))
-
-				resultField := funcDecl.Type.Results.List[0]
-				starExpr, ok := resultField.Type.(*ast.StarExpr)
-				require.True(t, ok, "Expected *ast.StarExpr for return type")
-
-				ident, ok := starExpr.X.(*ast.Ident)
-				require.True(t, ok, "Expected *ast.Ident in StarExpr")
-				assert.Equal(t, tt.structName, ident.Name)
-
-				// Check function body
-				require.NotNil(t, funcDecl.Body)
-				require.Equal(t, 1, len(funcDecl.Body.List))
-
-				// Check return statement
-				returnStmt, ok := funcDecl.Body.List[0].(*ast.ReturnStmt)
-				require.True(t, ok, "Expected *ast.ReturnStmt")
-				require.Equal(t, 1, len(returnStmt.Results))
-
-				// Check that it returns &StructName{}
-				unaryExpr, ok := returnStmt.Results[0].(*ast.UnaryExpr)
-				require.True(t, ok, "Expected *ast.UnaryExpr for return value")
-				assert.Equal(t, token.AND, unaryExpr.Op)
-
-				compositeLit, ok := unaryExpr.X.(*ast.CompositeLit)
-				require.True(t, ok, "Expected *ast.CompositeLit in UnaryExpr")
-
-				typeIdent, ok := compositeLit.Type.(*ast.Ident)
-				require.True(t, ok, "Expected *ast.Ident for composite literal type")
-				assert.Equal(t, tt.structName, typeIdent.Name)
-			}
-		})
-	}
-}
-
 // TestFromGenDecl tests edge cases for fromGenDecl method
 func TestFromGenDecl(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -308,7 +256,7 @@ func TestFromTypeGenDecl(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -360,7 +308,7 @@ func TestFromTypeSpec(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -410,7 +358,7 @@ func TestFromField(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -495,7 +443,7 @@ func TestGetterFuncDecl(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -548,7 +496,7 @@ func TestSetterFuncDecl(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -617,7 +565,7 @@ func TestSetterFuncNoValidationDecl(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -674,7 +622,7 @@ func TestSetterFuncWithValidationDecl(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -759,7 +707,7 @@ func TestPrepareFieldName(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -803,7 +751,7 @@ func TestBuildSetterFuncType(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -845,7 +793,7 @@ func TestBuildSetterFuncType(t *testing.T) {
 			if tt.wantNil {
 				assert.Nil(t, funcType)
 			} else {
-				require.NotNil(t, funcType)
+				assert.NotNil(t, funcType)
 				if tt.withError {
 					assert.NotNil(t, funcType.Results)
 				} else {
@@ -860,7 +808,7 @@ func TestGenerator_processDirective(t *testing.T) {
 	t.Parallel()
 
 	generator := NewGenerator(&GeneratorConfig{
-		TagName: tagName,
+		PropertyTag: propertyTag,
 	})
 
 	field := &ast.Field{
@@ -917,7 +865,7 @@ func TestFromFieldList(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -978,7 +926,7 @@ func TestBuildRecvFieldList(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",
@@ -1017,7 +965,7 @@ func TestBuildValidationBody(t *testing.T) {
 	t.Parallel()
 
 	config := &GeneratorConfig{
-		TagName:        "property",
+		PropertyTag:    "property",
 		Initialism:     []string{"api", "id"},
 		ValidationFunc: "validate",
 		ValidationTag:  "validate",

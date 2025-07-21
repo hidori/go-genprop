@@ -8,11 +8,11 @@ import (
 
 // Flags contains all flag pointers.
 type Flags struct {
-	GenerateNewFunc    *bool
+	VersionFlag        *bool
 	InitialismFlag     *string
 	ValidationFuncFlag *string
 	ValidationTagFlag  *string
-	VersionFlag        *bool
+	NewFunc            *bool
 }
 
 // BuildFlagSet creates and configures a flag set.
@@ -32,17 +32,17 @@ func BuildFlagSet() *flag.FlagSet {
 
 // BuildFlags creates and returns flag pointers from the given flag set.
 func BuildFlags(flagSet *flag.FlagSet) *Flags {
-	generateNewFuncFlag := flagSet.Bool("generate-new-func", false, "generate New function for target struct")
+	versionFlag := flagSet.Bool("version", false, "show version information")
 	initialismFlag := flagSet.String("initialism", "id,url,api", "specify names to which initialism should be applied")
 	validationFuncFlag := flagSet.String("validation-func", "validateFieldValue", "specify validation func name")
 	validationTagFlag := flagSet.String("validation-tag", "validate", "specify validation tag name")
-	versionFlag := flagSet.Bool("version", false, "show version information")
+	newFuncFlag := flagSet.Bool("new-func", false, "generate New function for target struct")
 
 	return &Flags{
-		GenerateNewFunc:    generateNewFuncFlag,
+		VersionFlag:        versionFlag,
 		InitialismFlag:     initialismFlag,
 		ValidationFuncFlag: validationFuncFlag,
 		ValidationTagFlag:  validationTagFlag,
-		VersionFlag:        versionFlag,
+		NewFunc:            newFuncFlag,
 	}
 }

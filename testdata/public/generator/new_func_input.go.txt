@@ -1,0 +1,31 @@
+package test
+
+// TestEmptyStruct represents a struct with no members
+// Expected: func NewTestEmptyStruct() *TestEmptyStruct { return &TestEmptyStruct{} }
+type TestEmptyStruct struct {
+}
+
+// TestNoTagStruct represents a simple struct without property tags
+// Expected: func NewTestNoTagStruct(data int) *TestNoTagStruct { s := &TestNoTagStruct{}; s.data = data; return s }
+type TestNoTagStruct struct {
+	data int // No property tag -> direct assignment in constructor
+}
+
+// TestNewFuncStruct represents a complex struct with multiple property features
+// Expected: func NewTestNewFuncStruct(noSetter, publicSetter, privateSetter, publicSetterValidated, privateSetterValidated string) (*TestNewFuncStruct, error)
+type TestNewFuncStruct struct {
+	// Field without setter -> direct assignment: s.noSetter = noSetter
+	noSetter string
+
+	// Field with public setter (no validation) -> setter call: s.SetPublicSetter(publicSetter)
+	publicSetter string `property:"get,set"`
+
+	// Field with private setter (no validation) -> private setter call: s.setPrivateSetter(privateSetter)
+	privateSetter string `property:"get,set=private"`
+
+	// Field with public setter (with validation) -> validation setter call with error handling
+	publicSetterValidated string `property:"get,set" validate:"required"`
+
+	// Field with private setter (with validation) -> private validation setter call with error handling
+	privateSetterValidated string `property:"get,set=private" validate:"min=1"`
+}

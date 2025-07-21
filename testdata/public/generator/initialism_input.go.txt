@@ -1,0 +1,35 @@
+package data
+
+// TestInitialismStruct represents a comprehensive test for -initialism command line option
+// Tests various initialism patterns and capitalization handling
+type TestInitialismStruct struct {
+	// Default initialism words (id, url, api) - should be uppercase
+	id       string `property:"get,set"` // Expected: GetID() + SetID()
+	url      string `property:"get,set"` // Expected: GetURL() + SetURL()
+	api      string `property:"get,set"` // Expected: GetAPI() + SetAPI()
+
+	// Compound words with default initialisms
+	userId    string `property:"get,set"` // Expected: GetUserID() + SetUserID()
+	apiKey    string `property:"get,set"` // Expected: GetAPIKey() + SetAPIKey()
+	baseUrl   string `property:"get,set"` // Expected: GetBaseURL() + SetBaseURL()
+	urlPath   string `property:"get,set"` // Expected: GetURLPath() + SetURLPath()
+
+	// Custom initialism words (will be configured in test)
+	xml      string `property:"get,set"` // Expected: GetXML() + SetXML() (when xml in initialism list)
+	json     string `property:"get,set"` // Expected: GetJSON() + SetJSON() (when json in initialism list)
+	http     string `property:"get,set"` // Expected: GetHTTP() + SetHTTP() (when http in initialism list)
+
+	// Compound words with custom initialisms
+	xmlParser   string `property:"get,set"` // Expected: GetXMLParser() + SetXMLParser()
+	jsonData    string `property:"get,set"` // Expected: GetJSONData() + SetJSONData()
+	httpClient  string `property:"get,set"` // Expected: GetHTTPClient() + SetHTTPClient()
+
+	// Words that should NOT be uppercase (not in initialism list)
+	name     string `property:"get,set"` // Expected: GetName() + SetName()
+	data     string `property:"get,set"` // Expected: GetData() + SetData()
+	config   string `property:"get,set"` // Expected: GetConfig() + SetConfig()
+
+	// Edge cases
+	apiApiKey string `property:"get,set"` // Expected: GetAPIAPIKey() + SetAPIAPIKey()
+	urlUrlPath string `property:"get,set"` // Expected: GetURLURLPath() + SetURLURLPath()
+}
