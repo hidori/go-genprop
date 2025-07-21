@@ -9,6 +9,15 @@
 
 Simplify your Go development with automatic property generation, validation support, and flexible configuration options.
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+- [Property Tag Reference](#property-tag-reference)
+- [Examples](#examples)
+
 ## Features
 
 - **Property Tag Support**: Use intuitive tags like `property:"get"`, `property:"set"`, `property:"get,set"`
@@ -96,26 +105,25 @@ fmt.Printf("Updated Name: %s\n", user.GetName()) // Output: Updated Name: Jane S
 
 ### CLI
 
-#### Basic Commands
-
 ```bash
 # Basic usage
 go tool genprop input.go > output.go
 
-# Generate with New function
-go tool genprop -new-func input.go > output.go
-
-# Custom validation function
-go tool genprop -validation-func="myValidate" input.go > output.go
-
-# Custom initialisms
-go tool genprop -initialism="id,url,api,json,uuid" input.go > output.go
-
-# Combine multiple options
-go tool genprop -new-func -validation-func="validate" -initialism="id,api" input.go > output.go
+# With options
+go tool genprop -new-func -validation-func="validate" input.go > output.go
 ```
 
-#### Available Flags
+### Docker
+
+```bash
+# Basic usage
+docker run --rm -v ${PWD}:${PWD} -w ${PWD} hidori/genprop:latest input.go > output.go
+
+# With options
+docker run --rm -v ${PWD}:${PWD} -w ${PWD} hidori/genprop:latest -new-func -validation-func="validate" input.go > output.go
+```
+
+## Available Flags
 
 ```text
 Usage: genprop [flags] <FILE>
@@ -133,12 +141,6 @@ Flags:
         specify validation tag name (default "validate")
   -version
         show version information
-```
-
-### Docker
-
-```bash
-docker run --rm -v ${PWD}:${PWD} -w ${PWD} hidori/genprop:latest input.go > output.go
 ```
 
 ## Property Tag Reference
