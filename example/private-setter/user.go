@@ -28,9 +28,7 @@ func NewUser(id int, name, email string) (*User, error) {
 
 // validateFieldValue validates a field value using the specified validation tag.
 func validateFieldValue(name string, v any, tag string) error {
-
 	if err := _validator.Var(v, tag); err != nil {
-
 		return errors.Wrapf(err, "validation failed for field '%s'", name)
 	}
 

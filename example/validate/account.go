@@ -21,5 +21,6 @@ func validateField(fieldName string, value any, rule string) error {
 	if err := validate.Var(value, rule); err != nil {
 		return fmt.Errorf("validation failed for field '%s': %s", fieldName, err.Error())
 	}
+
 	return nil
 }
