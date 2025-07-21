@@ -1,0 +1,6 @@
+package test
+
+// SimpleStruct represents a simple struct without property tags
+type SimpleStruct struct {
+	data int
+}

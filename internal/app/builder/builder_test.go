@@ -110,6 +110,7 @@ func TestFlags(t *testing.T) {
 				ValidationFuncFlag: stringPtr("validateFieldValue"),
 				ValidationTagFlag:  stringPtr("validate"),
 				VersionFlag:        boolPtr(false),
+				GenerateNewFunc:    boolPtr(false),
 			},
 		},
 	}

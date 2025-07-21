@@ -18,10 +18,11 @@ import (
 
 // GeneratorConfig holds configuration for the code generator.
 type GeneratorConfig struct {
-	TagName        string
-	Initialism     []string
-	ValidationFunc string
-	ValidationTag  string
+	TagName         string
+	GenerateNewFunc bool
+	Initialism      []string
+	ValidationFunc  string
+	ValidationTag   string
 }
 
 // Generator generates getter and setter methods for struct fields.
@@ -100,7 +101,25 @@ func (g *Generator) fromTypeSpec(typeSpec *ast.TypeSpec) ([]ast.Decl, error) {
 		return []ast.Decl{}, nil
 	}
 
-	return g.fromFieldList(typeSpec.Name.Name, structType.Fields)
+	var decls []ast.Decl
+
+	// Generate New function if configured
+	if g.config.GenerateNewFunc {
+		newFunc := g.newFuncDecl(typeSpec.Name.Name)
+		if newFunc != nil {
+			decls = append(decls, newFunc)
+		}
+	}
+
+	// Generate getter and setter methods
+	fieldDecls, err := g.fromFieldList(typeSpec.Name.Name, structType.Fields)
+	if err != nil {
+		return nil, err
+	}
+
+	decls = append(decls, fieldDecls...)
+
+	return decls, nil
 }
 
 func (g *Generator) fromFieldList(structName string, fieldList *ast.FieldList) ([]ast.Decl, error) {
@@ -166,6 +185,39 @@ func (g *Generator) processDirective(directive, structName string, field *ast.Fi
 
 	default:
 		return nil, errors.Wrapf(errInvalidTagValue, "directive=%s", directive)
+	}
+}
+
+func (g *Generator) newFuncDecl(structName string) ast.Decl {
+	name := astutil.NewIdent("New" + structName)
+
+	funcType := astutil.NewFuncType(
+		nil,
+		nil,
+		astutil.NewFieldList(
+			[]*ast.Field{
+				astutil.NewField(nil, astutil.NewStarExpr(astutil.NewIdent(structName))),
+			},
+		),
+	)
+
+	body := astutil.NewBlockStmt(
+		[]ast.Stmt{
+			astutil.NewReturnStmt(
+				[]ast.Expr{
+					&ast.UnaryExpr{
+						Op: token.AND,
+						X:  astutil.NewCompositeLit(astutil.NewIdent(structName), nil),
+					},
+				},
+			),
+		},
+	)
+
+	return &ast.FuncDecl{
+		Name: name,
+		Type: funcType,
+		Body: body,
 	}
 }
 

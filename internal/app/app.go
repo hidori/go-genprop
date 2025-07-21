@@ -37,6 +37,7 @@ func Run(args []string) error {
 	return generate(
 		os.Stdout,
 		fileName,
+		*flags.GenerateNewFunc,
 		*flags.InitialismFlag,
 		*flags.ValidationFuncFlag,
 		*flags.ValidationTagFlag,
@@ -61,13 +62,18 @@ func getFileName(flagSet *flag.FlagSet) (string, error) {
 	return parsedArgs[0], nil
 }
 
-func generate(writer io.Writer, fileName string, initialismFlag, validationFuncFlag, validationTagFlag string) error {
+func generate(
+	writer io.Writer,
+	fileName string,
+	generateNewFunc bool,
+	initialismFlag, validationFuncFlag, validationTagFlag string,
+) error {
 	file, err := parser.ParseFile(fileName)
 	if err != nil {
 		return errors.Wrap(err, "failed to parse file")
 	}
 
-	decls, err := generator.GenerateCode(file, initialismFlag, validationFuncFlag, validationTagFlag)
+	decls, err := generator.GenerateCode(file, initialismFlag, validationFuncFlag, validationTagFlag, generateNewFunc)
 	if err != nil {
 		return errors.Wrap(err, "failed to generate code")
 	}

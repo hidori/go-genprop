@@ -14,12 +14,17 @@ const (
 )
 
 // GenerateCode generates AST declarations for getter and setter methods based on the given file and configuration.
-func GenerateCode(file *ast.File, initialismFlag, validationFuncFlag, validationTagFlag string) ([]ast.Decl, error) {
+func GenerateCode(
+	file *ast.File,
+	initialismFlag, validationFuncFlag, validationTagFlag string,
+	generateNewFunc bool,
+) ([]ast.Decl, error) {
 	generator := generator.NewGenerator(&generator.GeneratorConfig{
-		TagName:        tagName,
-		Initialism:     strings.Split(initialismFlag, ","),
-		ValidationFunc: validationFuncFlag,
-		ValidationTag:  validationTagFlag,
+		TagName:         tagName,
+		GenerateNewFunc: generateNewFunc,
+		Initialism:      strings.Split(initialismFlag, ","),
+		ValidationFunc:  validationFuncFlag,
+		ValidationTag:   validationTagFlag,
 	})
 
 	decls, err := generator.Generate(token.NewFileSet(), file)

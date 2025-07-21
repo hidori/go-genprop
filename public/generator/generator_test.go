@@ -78,6 +78,30 @@ func TestGenerator_Generate(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:           "success: generates New function when GenerateNewFunc is true",
+			inputFileName:  "../../testdata/public/generator/generate_new_func_input.go.txt",
+			outputFileName: "../../testdata/public/generator/generate_new_func_output.txt",
+			fields: fields{
+				config: &GeneratorConfig{
+					TagName:         tagName,
+					GenerateNewFunc: true,
+					Initialism:      []string{"api"},
+				},
+			},
+		},
+		{
+			name:           "success: generates only New function when no property tags present",
+			inputFileName:  "../../testdata/public/generator/new_func_only_input.go.txt",
+			outputFileName: "../../testdata/public/generator/new_func_only_output.txt",
+			fields: fields{
+				config: &GeneratorConfig{
+					TagName:         tagName,
+					GenerateNewFunc: true,
+					Initialism:      []string{"api"},
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -121,6 +145,102 @@ func TestGenerator_Generate(t *testing.T) {
 
 			if !assert.Equal(t, _want.String(), _got.String()) {
 				return
+			}
+		})
+	}
+}
+
+func TestNewFuncDecl(t *testing.T) {
+	t.Parallel()
+
+	config := &GeneratorConfig{
+		TagName:         "property",
+		GenerateNewFunc: true,
+		Initialism:      []string{"api", "id"},
+		ValidationFunc:  "validate",
+		ValidationTag:   "validate",
+	}
+	generator := NewGenerator(config)
+
+	tests := []struct {
+		name       string
+		structName string
+		wantNil    bool
+	}{
+		{
+			name:       "success: generates New function for struct",
+			structName: "TestStruct",
+			wantNil:    false,
+		},
+		{
+			name:       "success: generates New function with camelCase struct name",
+			structName: "userAccount",
+			wantNil:    false,
+		},
+		{
+			name:       "success: generates New function with single character struct name",
+			structName: "A",
+			wantNil:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			decl := generator.newFuncDecl(tt.structName)
+
+			if tt.wantNil {
+				assert.Nil(t, decl)
+			} else {
+				require.NotNil(t, decl)
+
+				// Check if it's a function declaration
+				funcDecl, ok := decl.(*ast.FuncDecl)
+				require.True(t, ok, "Expected *ast.FuncDecl")
+
+				// Check function name
+				expectedName := "New" + tt.structName
+				assert.Equal(t, expectedName, funcDecl.Name.Name)
+
+				// Check that it has no receiver (it's a package-level function)
+				assert.Nil(t, funcDecl.Recv)
+
+				// Check that it has no parameters
+				assert.Nil(t, funcDecl.Type.Params)
+
+				// Check return type (should be *StructName)
+				require.NotNil(t, funcDecl.Type.Results)
+				require.Equal(t, 1, len(funcDecl.Type.Results.List))
+
+				resultField := funcDecl.Type.Results.List[0]
+				starExpr, ok := resultField.Type.(*ast.StarExpr)
+				require.True(t, ok, "Expected *ast.StarExpr for return type")
+
+				ident, ok := starExpr.X.(*ast.Ident)
+				require.True(t, ok, "Expected *ast.Ident in StarExpr")
+				assert.Equal(t, tt.structName, ident.Name)
+
+				// Check function body
+				require.NotNil(t, funcDecl.Body)
+				require.Equal(t, 1, len(funcDecl.Body.List))
+
+				// Check return statement
+				returnStmt, ok := funcDecl.Body.List[0].(*ast.ReturnStmt)
+				require.True(t, ok, "Expected *ast.ReturnStmt")
+				require.Equal(t, 1, len(returnStmt.Results))
+
+				// Check that it returns &StructName{}
+				unaryExpr, ok := returnStmt.Results[0].(*ast.UnaryExpr)
+				require.True(t, ok, "Expected *ast.UnaryExpr for return value")
+				assert.Equal(t, token.AND, unaryExpr.Op)
+
+				compositeLit, ok := unaryExpr.X.(*ast.CompositeLit)
+				require.True(t, ok, "Expected *ast.CompositeLit in UnaryExpr")
+
+				typeIdent, ok := compositeLit.Type.(*ast.Ident)
+				require.True(t, ok, "Expected *ast.Ident for composite literal type")
+				assert.Equal(t, tt.structName, typeIdent.Name)
 			}
 		})
 	}

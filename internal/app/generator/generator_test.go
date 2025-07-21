@@ -30,7 +30,7 @@ func TestGenerateCode(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			decls, err := GenerateCode(tt.file, "id,url,api", "validateFieldValue", "validate")
+			decls, err := GenerateCode(tt.file, "id,url,api", "validateFieldValue", "validate", false)
 
 			if tt.wantErr {
 				assert.Error(t, err)

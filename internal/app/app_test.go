@@ -113,7 +113,7 @@ func TestGenerate(t *testing.T) {
 			t.Parallel()
 
 			var buffer bytes.Buffer
-			err := generate(&buffer, tt.fileName, "id,url,api", "validateFieldValue", "validate")
+			err := generate(&buffer, tt.fileName, false, "id,url,api", "validateFieldValue", "validate")
 
 			if tt.wantErr {
 				require.Error(t, err)
