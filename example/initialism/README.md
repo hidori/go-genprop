@@ -22,20 +22,21 @@ package example
 
 import "net/http"
 
-// APIClient represents an API client with initialism-sensitive fields.
+// APIClient represents an API client with various initialism fields.
 type APIClient struct {
-    client http.Client `property:"get"`                 // HTTP client
-    url    string      `property:"get" json:"url"`      // API base URL
-    apiKey string      `property:"get,set=private"`     // API key with private setter
+    client http.Client `property:"get,set=private"` // HTTP client
+    url    string      `property:"get,set=private"` // URL field (initialism)
+    apiKey string      `property:"get,set=private"` // API key field (initialism)
 }
 
-// NewAPIClient creates a new API client instance.
+// NewAPIClient creates a new APIClient instance
 func NewAPIClient(client http.Client, url, apiKey string) *APIClient {
-    return &APIClient{
-        client: client,
-        url:    url,
-        apiKey: apiKey,
-    }
+    apiClient := &APIClient{}
+    apiClient.setClient(client)
+    apiClient.setURL(url)
+    apiClient.setAPIKey(apiKey)
+
+    return apiClient
 }
 ```
 

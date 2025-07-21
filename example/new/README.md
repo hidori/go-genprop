@@ -20,7 +20,7 @@ This example demonstrates automatic constructor generation with the `-new-func` 
 ```go
 package example
 
-// User represents a user model for new function generation.
+// User represents a user with basic information.
 type User struct {
     id    int    `property:"get"`     // Read-only ID field
     name  string `property:"get,set"` // Name with both getter and setter

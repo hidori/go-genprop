@@ -30,6 +30,7 @@ type User struct {
 func NewUser(id int, name string) *User {
     user := &User{id: id}
     user.SetName(name)
+
     return user
 }
 ```
