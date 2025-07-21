@@ -12,39 +12,46 @@ func TestRun(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name    string
-		args    []string
-		wantErr bool
+		name            string
+		args            []string
+		wantErr         bool
+		wantErrContains string
 	}{
 		{
-			name:    "success: run with valid file argument",
-			args:    []string{"genprop", "../../testdata/internal/app/valid_syntax_input.go.txt"},
-			wantErr: false,
+			name:            "success: run with valid file",
+			args:            []string{"genprop", "../../testdata/internal/app/valid_syntax_input.go.txt"},
+			wantErr:         false,
+			wantErrContains: "",
 		},
 		{
-			name:    "failure: run with non-existent file",
-			args:    []string{"genprop", "non_existent_file.go"},
-			wantErr: true,
+			name:            "failure: run with non-existent file",
+			args:            []string{"genprop", "non_existent_file.go"},
+			wantErr:         true,
+			wantErrContains: "",
 		},
 		{
-			name:    "success: version flag",
-			args:    []string{"genprop", "--version"},
-			wantErr: false,
+			name:            "success: version flag",
+			args:            []string{"genprop", "--version"},
+			wantErr:         false,
+			wantErrContains: "",
 		},
 		{
-			name:    "failure: no file argument",
-			args:    []string{"genprop"},
-			wantErr: true,
+			name:            "failure: no file argument",
+			args:            []string{"genprop"},
+			wantErr:         true,
+			wantErrContains: "file argument is required",
 		},
 		{
-			name:    "failure: multiple file arguments",
-			args:    []string{"genprop", "file1.go", "file2.go"},
-			wantErr: true,
+			name:            "failure: multiple file arguments",
+			args:            []string{"genprop", "file1.go", "file2.go"},
+			wantErr:         true,
+			wantErrContains: "exactly one file argument is required",
 		},
 		{
-			name:    "success: custom flags with valid file",
-			args:    []string{"genprop", "--initialism", "api,id", "--validation-func", "customValidate", "--validation-tag", "custom", "../../testdata/internal/app/valid_syntax_input.go.txt"},
-			wantErr: false,
+			name:            "success: custom flags with valid file",
+			args:            []string{"genprop", "--initialism", "api,id", "--validation-func", "customValidate", "--validation-tag", "custom", "../../testdata/internal/app/valid_syntax_input.go.txt"},
+			wantErr:         false,
+			wantErrContains: "",
 		},
 	}
 
@@ -59,6 +66,9 @@ func TestRun(t *testing.T) {
 
 			if tt.wantErr {
 				require.Error(t, err)
+				if tt.wantErrContains != "" {
+					assert.Contains(t, err.Error(), tt.wantErrContains)
+				}
 			} else {
 				require.NoError(t, err)
 			}

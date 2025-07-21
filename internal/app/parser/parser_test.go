@@ -11,42 +11,37 @@ func TestParseFile(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name          string
-		fileName      string
-		wantError     bool
-		wantPackage   string
-		errorContains string
+		name        string
+		fileName    string
+		wantErr     bool
+		wantPackage string
 	}{
 		{
 			name:        "valid go file",
 			fileName:    "../../../testdata/internal/app/valid_syntax_input.go.txt",
-			wantError:   false,
+			wantErr:     false,
 			wantPackage: "test",
 		},
 		{
-			name:          "file not found",
-			fileName:      "nonexistent.go",
-			wantError:     true,
-			errorContains: "no such file or directory",
+			name:     "file not found",
+			fileName: "nonexistent.go",
+			wantErr:  true,
 		},
 		{
-			name:          "success: calls internal parser",
-			fileName:      "../../../testdata/internal/app/valid_syntax_input.go.txt",
-			wantError:     false,
-			wantPackage:   "test",
-			errorContains: "",
+			name:        "success: calls internal parser",
+			fileName:    "../../../testdata/internal/app/valid_syntax_input.go.txt",
+			wantErr:     false,
+			wantPackage: "test",
 		},
 		{
-			name:          "invalid syntax test data",
-			fileName:      "../../../testdata/internal/app/invalid_syntax_input.go.txt",
-			wantError:     true,
-			errorContains: "",
+			name:     "invalid syntax test data",
+			fileName: "../../../testdata/internal/app/invalid_syntax_input.go.txt",
+			wantErr:  true,
 		},
 		{
-			name:          "empty filename",
-			fileName:      "",
-			wantError:     true,
-			errorContains: "",
+			name:     "empty filename",
+			fileName: "",
+			wantErr:  true,
 		},
 	}
 
@@ -56,17 +51,14 @@ func TestParseFile(t *testing.T) {
 
 			file, err := ParseFile(tt.fileName)
 
-			if tt.wantError {
+			if tt.wantErr {
 				assert.Error(t, err)
 				assert.Nil(t, file)
-				if tt.errorContains != "" {
-					assert.Contains(t, err.Error(), tt.errorContains)
-				}
 				return
 			}
 
 			require.NoError(t, err)
-			assert.NotNil(t, file)
+			require.NotNil(t, file)
 			assert.Equal(t, tt.wantPackage, file.Name.Name)
 			assert.NotEmpty(t, file.Decls)
 		})

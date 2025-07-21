@@ -31,7 +31,7 @@ func Run(args []string) error {
 
 	fileName, err := getFileName(flagSet)
 	if err != nil {
-		return err
+		return errors.WithStack(err)
 	}
 
 	return generate(

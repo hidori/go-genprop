@@ -22,12 +22,12 @@ func TestGenerator_Generate(t *testing.T) {
 	}
 
 	tests := []struct {
-		name           string
-		inputFileName  string
-		outputFileName string
-		fields         fields
-		wantErr        bool
-		wantErrMessage string
+		name            string
+		inputFileName   string
+		outputFileName  string
+		fields          fields
+		wantErr         bool
+		wantErrContains string
 	}{
 		{
 			name:           "success: returns ast.Decl",
@@ -39,6 +39,8 @@ func TestGenerator_Generate(t *testing.T) {
 					Initialism: []string{"api"},
 				},
 			},
+			wantErr:         false,
+			wantErrContains: "",
 		},
 		{
 			name:          "failure: returns error for invalid tag",
@@ -49,8 +51,8 @@ func TestGenerator_Generate(t *testing.T) {
 					Initialism: []string{"api"},
 				},
 			},
-			wantErr:        true,
-			wantErrMessage: "invalid tag value",
+			wantErr:         true,
+			wantErrContains: "invalid tag value",
 		},
 		{
 			name:           "success: returns ast.Decl with validation",
@@ -93,7 +95,7 @@ func TestGenerator_Generate(t *testing.T) {
 
 			got, err := NewGenerator(tt.fields.config).Generate(fset, f)
 			if err != nil && tt.wantErr {
-				assert.Contains(t, err.Error(), tt.wantErrMessage)
+				assert.Contains(t, err.Error(), tt.wantErrContains)
 
 				return
 			}
@@ -723,7 +725,7 @@ func TestBuildSetterFuncType(t *testing.T) {
 			if tt.wantNil {
 				assert.Nil(t, funcType)
 			} else {
-				assert.NotNil(t, funcType)
+				require.NotNil(t, funcType)
 				if tt.withError {
 					assert.NotNil(t, funcType.Results)
 				} else {
