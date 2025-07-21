@@ -15,9 +15,3 @@ func (t *APIClient) GetURL() string {
 func (t *APIClient) setURL(v string) {
 	t.url = v
 }
-func (t *APIClient) GetAPIKey() string {
-	return t.apiKey
-}
-func (t *APIClient) setAPIKey(v string) {
-	t.apiKey = v
-}

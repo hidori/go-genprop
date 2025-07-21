@@ -26,15 +26,13 @@ import "net/http"
 type APIClient struct {
     client http.Client `property:"get,set=private"` // HTTP client
     url    string      `property:"get,set=private"` // URL field (initialism)
-    apiKey string      `property:"get,set=private"` // API key field (initialism)
 }
 
 // NewAPIClient creates a new APIClient instance
-func NewAPIClient(client http.Client, url, apiKey string) *APIClient {
+func NewAPIClient(client http.Client, url string) *APIClient {
     apiClient := &APIClient{}
     apiClient.setClient(client)
     apiClient.setURL(url)
-    apiClient.setAPIKey(apiKey)
 
     return apiClient
 }
@@ -55,14 +53,14 @@ package example
 func (t *APIClient) GetClient() http.Client {
     return t.client
 }
+func (t *APIClient) setClient(v http.Client) {
+    t.client = v
+}
 func (t *APIClient) GetURL() string {
     return t.url
 }
-func (t *APIClient) GetAPIKey() string {
-    return t.apiKey
-}
-func (t *APIClient) setAPIKey(v string) {
-    t.apiKey = v
+func (t *APIClient) setURL(v string) {
+    t.url = v
 }
 ```
 
@@ -73,12 +71,11 @@ func (t *APIClient) setAPIKey(v string) {
 httpClient := http.Client{}
 
 // Create a new API client using the constructor
-client := example.NewAPIClient(httpClient, "https://api.example.com", "secret-api-key")
+client := example.NewAPIClient(httpClient, "https://api.example.com")
 
 // Access values using getters
 fmt.Printf("HTTP Client: %+v\n", client.GetClient()) // Proper HTTP initialism
 fmt.Printf("Client URL: %s\n", client.GetURL())      // Proper URL initialism
-fmt.Printf("API Key: %s\n", client.GetAPIKey())      // Proper API initialism
 ```
 
 ## Supported Initialisms
@@ -96,7 +93,7 @@ When using the `-initialism` flag, the following common acronyms are properly ca
 
 ## Key Points
 
-- Field names like `url`, `apiKey` become `GetURL()`, `GetAPIKey()`
-- Private setters maintain initialism: `setAPIKey()`
+- Field names like `url` become `GetURL()` following Go initialism conventions
+- Private setters maintain initialism: `setURL()`
 - Manual constructor allows controlled initialization
 - Initialism handling makes generated code follow Go conventions
