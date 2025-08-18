@@ -1,5 +1,34 @@
 package data
 
-type SuccessStruct struct {
-	value int `property:"set" validate:"c1,c2,c3"`
+// TestValidationStruct represents a comprehensive test for validation functionality
+// Tests validation with different setter types and validation tag patterns
+type TestValidationStruct struct {
+	// Public setter with simple validation
+	simpleValidation string `property:"set" validate:"required"` // Expected: SetSimpleValidation() with validateFieldValue("simpleValidation", v, "required")
+
+	// Public setter with complex validation
+	complexValidation string `property:"set" validate:"min=5,max=100,pattern=^[a-z]+$"` // Expected: SetComplexValidation() with complex validation rules
+
+	// Public setter with multiple validation rules
+	multiValidation string `property:"set" validate:"required,email,unique"` // Expected: SetMultiValidation() with multiple validation rules
+
+	// Private setter with validation
+	privateValidation string `property:"set=private" validate:"min=1,max=50"` // Expected: setPrivateValidation() with validation
+
+	// Public getter + setter with validation
+	getSetValidation string `property:"get,set" validate:"numeric,positive"` // Expected: GetGetSetValidation() + SetGetSetValidation() with validation
+
+	// Private getter + setter with validation
+	getSetPrivateValidation string `property:"get,set=private" validate:"alpha,lowercase"` // Expected: GetGetSetPrivateValidation() + setGetSetPrivateValidation() with validation
+
+	// Different types with validation
+	intValidation     int     `property:"set" validate:"min=0,max=1000"`     // Expected: SetIntValidation() with int validation
+	floatValidation   float64 `property:"set" validate:"min=0.1,max=99.9"`   // Expected: SetFloatValidation() with float validation
+	sliceValidation   []string `property:"set" validate:"min_length=1,max_length=10"` // Expected: SetSliceValidation() with slice validation
+
+	// Edge case: empty validation tag
+	emptyValidation string `property:"set" validate:""` // Expected: SetEmptyValidation() with no validation (empty string)
+
+	// Edge case: special characters in validation
+	specialValidation string `property:"set" validate:"pattern=^[!@#$%]+$,special_chars"` // Expected: SetSpecialValidation() with special character validation
 }

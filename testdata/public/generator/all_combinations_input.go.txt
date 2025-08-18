@@ -1,0 +1,25 @@
+package data
+
+// TestAllCombinationsStruct represents a minimal test for complete coverage of all feature combinations
+// This test focuses on ensuring all possible combinations are correctly handled, not deep testing of individual features
+type TestAllCombinationsStruct struct {
+	// No property tag - control case
+	noTag string // Expected: no generated methods
+
+	// Single feature tests
+	getOnly    string `property:"get"`         // Expected: GetGetOnly() only
+	setOnly    string `property:"set"`         // Expected: SetSetOnly() only
+	setPrivate string `property:"set=private"` // Expected: setSetPrivate() only
+
+	// Dual combinations without validation
+	getSet        string `property:"get,set"`         // Expected: GetGetSet() + SetGetSet()
+	getSetPrivate string `property:"get,set=private"` // Expected: GetGetSetPrivate() + setGetSetPrivate()
+
+	// Single features with validation
+	setValidation        string `property:"set" validate:"required"`         // Expected: SetSetValidation() with validation
+	setPrivateValidation string `property:"set=private" validate:"min=1"`    // Expected: setSetPrivateValidation() with validation
+
+	// Dual combinations with validation
+	getSetValidation        string `property:"get,set" validate:"max=100"`         // Expected: GetGetSetValidation() + SetGetSetValidation() with validation
+	getSetPrivateValidation string `property:"get,set=private" validate:"email"`   // Expected: GetGetSetPrivateValidation() + setGetSetPrivateValidation() with validation
+}

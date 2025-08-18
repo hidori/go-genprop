@@ -1,4 +1,4 @@
-package basic
+package example
 
 // User represents a basic user with ID and name.
 type User struct {
