@@ -53,8 +53,8 @@ container/rebuild:
 
 .PHONY: container/run
 container/run: container/build
-	docker run --rm -it -v $(PWD):$(PWD) -w $(PWD) $(IMAGE_NAME) ./example/basic/user.go > ./example/basic/user_prop.go
-	go run ./cmd/example/basic/main.go
+	docker run --rm -v $(PWD):$(PWD) -w $(PWD) $(IMAGE_NAME) ./example/basic/user.go > ./example/basic/user_prop.go
+	docker run --rm -v $(PWD):$(PWD) -w $(PWD) $(IMAGE_NAME) ./example/advanced/user.go > ./example/advanced/user_prop.go
 
 .PHONY: version/patch
 version/patch: test lint
