@@ -1,0 +1,53 @@
+package data
+
+import (
+	"fmt"
+	"go/ast"
+	"regexp"
+	"time"
+)
+
+// TestGetterStruct represents a comprehensive test for getter-only functionality
+// Tests various types, edge cases, and initialism handling for getter generation
+type TestGetterStruct struct {
+	// Built-in types
+	intField    int     `property:"get"` // Expected: func (t *TestGetterStruct) GetIntField() int { return t.intField }
+	floatField  float64 `property:"get"` // Expected: func (t *TestGetterStruct) GetFloatField() float64 { return t.floatField }
+	boolField   bool    `property:"get"` // Expected: func (t *TestGetterStruct) GetBoolField() bool { return t.boolField }
+	stringField string  `property:"get"` // Expected: func (t *TestGetterStruct) GetStringField() string { return t.stringField }
+
+	// Pointer types
+	intPtr    *int     `property:"get"` // Expected: func (t *TestGetterStruct) GetIntPtr() *int { return t.intPtr }
+	stringPtr *string  `property:"get"` // Expected: func (t *TestGetterStruct) GetStringPtr() *string { return t.stringPtr }
+
+	// Collection types
+	sliceField []string           `property:"get"` // Expected: func (t *TestGetterStruct) GetSliceField() []string { return t.sliceField }
+	mapField   map[string]int     `property:"get"` // Expected: func (t *TestGetterStruct) GetMapField() map[string]int { return t.mapField }
+	arrayField [5]int             `property:"get"` // Expected: func (t *TestGetterStruct) GetArrayField() [5]int { return t.arrayField }
+
+	// Interface types
+	interfaceField interface{}     `property:"get"` // Expected: func (t *TestGetterStruct) GetInterfaceField() interface{} { return t.interfaceField }
+
+	// Custom struct types
+	customStruct    TestCustomStruct  `property:"get"` // Expected: func (t *TestGetterStruct) GetCustomStruct() TestCustomStruct { return t.customStruct }
+	customStructPtr *TestCustomStruct `property:"get"` // Expected: func (t *TestGetterStruct) GetCustomStructPtr() *TestCustomStruct { return t.customStructPtr }
+
+	// External package types
+	timeField time.Time `property:"get"` // Expected: func (t *TestGetterStruct) GetTimeField() time.Time { return t.timeField }
+	astFile   ast.File  `property:"get"` // Expected: func (t *TestGetterStruct) GetAstFile() ast.File { return t.astFile }
+
+	// Complex nested types
+	sliceOfStructs []TestCustomStruct            `property:"get"` // Expected: func (t *TestGetterStruct) GetSliceOfStructs() []TestCustomStruct { return t.sliceOfStructs }
+	mapOfPointers  map[string]*TestCustomStruct  `property:"get"` // Expected: func (t *TestGetterStruct) GetMapOfPointers() map[string]*TestCustomStruct { return t.mapOfPointers }
+
+	// Function types
+	funcField func(string) int `property:"get"` // Expected: func (t *TestGetterStruct) GetFuncField() func(string) int { return t.funcField }
+
+	// Channel types
+	chanField chan string `property:"get"` // Expected: func (t *TestGetterStruct) GetChanField() chan string { return t.chanField }
+}
+
+// TestCustomStruct represents a simple custom type for testing
+type TestCustomStruct struct {
+	Value string
+}

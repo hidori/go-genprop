@@ -1,0 +1,19 @@
+package data
+
+// TestValidationFuncStruct represents a test for -validation-func command line option
+// Tests custom validation function names
+type TestValidationFuncStruct struct {
+	// Fields with validation using custom validation function
+	customValidated  string `property:"set" validate:"required"`     // Expected: customValidateFunc("customValidated", v, "required")
+	anotherField     string `property:"set" validate:"min=1,max=10"` // Expected: customValidateFunc("anotherField", v, "min=1,max=10")
+	complexRule      string `property:"set" validate:"email,unique"`  // Expected: customValidateFunc("complexRule", v, "email,unique")
+
+	// Private setter with validation
+	privateValidated string `property:"set=private" validate:"alpha"` // Expected: customValidateFunc("privateValidated", v, "alpha")
+
+	// Get+Set with validation
+	getSetValidated  string `property:"get,set" validate:"numeric"`   // Expected: customValidateFunc("getSetValidated", v, "numeric")
+
+	// Field without validation (should not call validation function)
+	noValidation     string `property:"set"`                          // Expected: no validation call
+}

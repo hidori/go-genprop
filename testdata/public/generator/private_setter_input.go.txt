@@ -1,6 +1,6 @@
 package data
 
-type PrivateSetterStruct struct {
+type TestPrivateSetterStruct struct {
 	name     string `property:"get,set=private"`
 	password string `property:"set=private"`
 }

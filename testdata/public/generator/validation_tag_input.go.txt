@@ -1,0 +1,22 @@
+package data
+
+// TestValidationTagStruct represents a test for -validation-tag command line option
+// Tests custom validation tag names
+type TestValidationTagStruct struct {
+	// Fields with custom validation tag "rules" instead of default "validate"
+	customTagField1 string `property:"set" rules:"required"`        // Expected: validateFieldValue("customTagField1", v, "required")
+	customTagField2 string `property:"set" rules:"min=1,max=100"`   // Expected: validateFieldValue("customTagField2", v, "min=1,max=100")
+	customTagField3 string `property:"set" rules:"email,unique"`    // Expected: validateFieldValue("customTagField3", v, "email,unique")
+
+	// Private setter with custom validation tag
+	privateCustom   string `property:"set=private" rules:"alpha"`   // Expected: validateFieldValue("privateCustom", v, "alpha")
+
+	// Get+Set with custom validation tag
+	getSetCustom    string `property:"get,set" rules:"numeric"`     // Expected: validateFieldValue("getSetCustom", v, "numeric")
+
+	// Field with default validation tag (should be ignored when custom tag is specified)
+	defaultTag      string `property:"set" validate:"required"`     // Expected: no validation (wrong tag name)
+
+	// Field without validation tag
+	noTag           string `property:"set"`                         // Expected: no validation
+}
