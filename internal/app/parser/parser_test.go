@@ -19,7 +19,7 @@ func TestParseFile(t *testing.T) {
 	}{
 		{
 			name:        "valid go file",
-			fileName:    "../../../testdata/internal/app/valid_syntax_input.go.txt",
+			fileName:    "../testdata/valid_syntax_input.go.txt",
 			wantError:   false,
 			wantPackage: "test",
 		},
@@ -31,14 +31,14 @@ func TestParseFile(t *testing.T) {
 		},
 		{
 			name:          "success: calls internal parser",
-			fileName:      "../../../testdata/internal/app/valid_syntax_input.go.txt",
+			fileName:      "../testdata/valid_syntax_input.go.txt",
 			wantError:     false,
 			wantPackage:   "test",
 			errorContains: "",
 		},
 		{
 			name:          "invalid syntax test data",
-			fileName:      "../../../testdata/internal/app/invalid_syntax_input.go.txt",
+			fileName:      "../testdata/invalid_syntax_input.go.txt",
 			wantError:     true,
 			errorContains: "",
 		},

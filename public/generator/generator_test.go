@@ -31,8 +31,8 @@ func TestGenerator_Generate(t *testing.T) {
 	}{
 		{
 			name:           "success: returns ast.Decl",
-			inputFileName:  "../../testdata/public/generator/basic_getset_input.go.txt",
-			outputFileName: "../../testdata/public/generator/basic_getset_output.txt",
+			inputFileName:  "./testdata/basic_getset_input.go.txt",
+			outputFileName: "./testdata/basic_getset_output.txt",
 			fields: fields{
 				config: &GeneratorConfig{
 					TagName:    tagName,
@@ -42,7 +42,7 @@ func TestGenerator_Generate(t *testing.T) {
 		},
 		{
 			name:          "failure: returns error for invalid tag",
-			inputFileName: "../../testdata/public/generator/invalid_directive_input.go.txt",
+			inputFileName: "./testdata/invalid_directive_input.go.txt",
 			fields: fields{
 				config: &GeneratorConfig{
 					TagName:    tagName,
@@ -54,8 +54,8 @@ func TestGenerator_Generate(t *testing.T) {
 		},
 		{
 			name:           "success: returns ast.Decl with validation",
-			inputFileName:  "../../testdata/public/generator/validation_input.go.txt",
-			outputFileName: "../../testdata/public/generator/validation_output.txt",
+			inputFileName:  "./testdata/validation_input.go.txt",
+			outputFileName: "./testdata/validation_output.txt",
 			fields: fields{
 				config: &GeneratorConfig{
 					TagName:        tagName,
@@ -67,8 +67,8 @@ func TestGenerator_Generate(t *testing.T) {
 		},
 		{
 			name:           "success: returns ast.Decl with private setter",
-			inputFileName:  "../../testdata/public/generator/private_setter_input.go.txt",
-			outputFileName: "../../testdata/public/generator/private_setter_output.txt",
+			inputFileName:  "./testdata/private_setter_input.go.txt",
+			outputFileName: "./testdata/private_setter_output.txt",
 			fields: fields{
 				config: &GeneratorConfig{
 					TagName:    tagName,

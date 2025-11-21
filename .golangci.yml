@@ -7,17 +7,41 @@ run:
 linters:
   default: all
   disable:
-    - depguard
+  # unuseful linters:
     - exhaustruct
     - forbidigo
-    - gochecknoglobals
     - nlreturn
-    - revive
+  # deprecated linters:
     - wsl
+  settings:
+    revive:
+      rules:
+        - name: exported
+          arguments:
+            - "disableStutteringCheck"
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: "io/ioutil"
+              desc: "deprecated, use io and os packages instead"
+            - pkg: "errors$"
+              desc: "use github.com/pkg/errors instead for better error handling with stack traces"
+            - pkg: "math/rand$"
+              desc: "use math/rand/v2 for better random number generation, or crypto/rand for security-sensitive operations"
+            - pkg: "crypto/md5"
+              desc: "weak cryptographic hash, use crypto/sha256 or crypto/sha512 instead"
+            - pkg: "crypto/sha1"
+              desc: "weak cryptographic hash, use crypto/sha256 or crypto/sha512 instead"
+            - pkg: "crypto/des"
+              desc: "weak encryption algorithm, use AES instead"
+            - pkg: "crypto/rc4"
+              desc: "weak encryption algorithm, use AES instead"
 
 formatters:
   exclusions:
     paths:
       - ".*\\_test\\.go$"
       - ".*\\_mock\\.go$"
+      - ".*\\_gen\\.go$"
       - ".*\\_prop\\.go$"
