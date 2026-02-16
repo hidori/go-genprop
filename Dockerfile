@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine3.22 AS builder
+FROM golang:1.26-alpine3.22 AS builder
 
 RUN apk update && apk add --no-cache \
     ca-certificates \
@@ -10,7 +10,7 @@ WORKDIR /work
 
 RUN make build
 
-FROM golang:1.25-alpine3.22 AS runner
+FROM golang:1.26-alpine3.22 AS runner
 
 COPY --from=builder /work/bin/genprop /usr/local/bin
 
