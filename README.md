@@ -1,6 +1,6 @@
 # go-genprop
 
-[![Go Version](https://img.shields.io/badge/Go-1.24+-00ADD8.svg)](https://golang.org)
+[![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8.svg)](https://golang.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Go Report Card](https://goreportcard.com/badge/github.com/hidori/go-genprop)](https://goreportcard.com/report/github.com/hidori/go-genprop)
 [![CI](https://github.com/hidori/go-genprop/actions/workflows/check_and_test.yml/badge.svg?branch=main)](https://github.com/hidori/go-genprop/actions)
